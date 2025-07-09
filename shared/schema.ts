@@ -8,6 +8,20 @@ export const users = pgTable("users", {
   username: text("username").notNull().unique(),
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
+  isEmailVerified: boolean("is_email_verified").default(false).notNull(),
+  emailVerificationToken: text("email_verification_token"),
+  emailVerificationExpiry: timestamp("email_verification_expiry"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const mediaFiles = pgTable("media_files", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  filename: text("filename").notNull(),
+  originalName: text("original_name").notNull(),
+  mimeType: text("mime_type").notNull(),
+  size: integer("size").notNull(),
+  url: text("url").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -39,7 +53,7 @@ export const posts = pgTable("posts", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
   content: text("content").notNull(),
-  mediaUrls: text("media_urls").array(),
+  mediaFileIds: integer("media_file_ids").array(),
   scheduledAt: timestamp("scheduled_at"),
   publishedAt: timestamp("published_at"),
   status: text("status").notNull().default("draft"), // draft, scheduled, publishing, published, failed
@@ -81,6 +95,11 @@ export const jobQueue = pgTable("job_queue", {
 export const usersRelations = relations(users, ({ many }) => ({
   platformConnections: many(userPlatformConnections),
   posts: many(posts),
+  mediaFiles: many(mediaFiles),
+}));
+
+export const mediaFilesRelations = relations(mediaFiles, ({ one }) => ({
+  user: one(users, { fields: [mediaFiles.userId], references: [users.id] }),
 }));
 
 export const platformsRelations = relations(platforms, ({ many }) => ({
@@ -104,12 +123,13 @@ export const postPlatformsRelations = relations(postPlatforms, ({ one }) => ({
 }));
 
 // Schemas
-export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
+export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true, isEmailVerified: true, emailVerificationToken: true, emailVerificationExpiry: true });
 export const insertPlatformSchema = createInsertSchema(platforms).omit({ id: true });
 export const insertUserPlatformConnectionSchema = createInsertSchema(userPlatformConnections).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertPostSchema = createInsertSchema(posts).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertPostPlatformSchema = createInsertSchema(postPlatforms).omit({ id: true });
 export const insertJobQueueSchema = createInsertSchema(jobQueue).omit({ id: true, createdAt: true });
+export const insertMediaFileSchema = createInsertSchema(mediaFiles).omit({ id: true, createdAt: true });
 
 // Types
 export type User = typeof users.$inferSelect;
@@ -124,6 +144,8 @@ export type PostPlatform = typeof postPlatforms.$inferSelect;
 export type InsertPostPlatform = z.infer<typeof insertPostPlatformSchema>;
 export type JobQueue = typeof jobQueue.$inferSelect;
 export type InsertJobQueue = z.infer<typeof insertJobQueueSchema>;
+export type MediaFile = typeof mediaFiles.$inferSelect;
+export type InsertMediaFile = z.infer<typeof insertMediaFileSchema>;
 
 // Extended types for API responses
 export type PostWithPlatforms = Post & {

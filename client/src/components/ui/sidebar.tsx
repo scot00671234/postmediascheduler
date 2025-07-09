@@ -44,7 +44,7 @@ export function Sidebar() {
     <div className="w-64 bg-white border-r border-slate-200 flex flex-col">
       {/* Logo */}
       <div className="p-6 border-b border-slate-200">
-        <h1 className="text-xl font-bold text-slate-800">CrossPost Pro</h1>
+        <h1 className="text-xl font-bold text-slate-800">Post Media</h1>
         <p className="text-sm text-slate-500">Multi-Platform Publisher</p>
       </div>
       
@@ -75,11 +75,11 @@ export function Sidebar() {
       {/* User Profile */}
       <div className="p-4 border-t border-slate-200">
         <div className="flex items-center mb-3">
-          <img 
-            src={`https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=40&h=40`}
-            alt="User profile" 
-            className="w-10 h-10 rounded-full mr-3"
-          />
+          <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+            <span className="text-indigo-600 font-medium text-sm">
+              {user?.user?.username?.[0]?.toUpperCase() || "U"}
+            </span>
+          </div>
           <div>
             <p className="text-sm font-medium text-slate-900">
               {user?.user?.username || "User"}

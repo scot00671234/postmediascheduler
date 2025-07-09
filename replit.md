@@ -8,6 +8,25 @@ This is a full-stack TypeScript application that provides a minimalist social me
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+### January 2025
+- **App Rebranding**: Changed application name from "CrossPost Pro" to "Post Media"
+- **File Upload System**: Implemented complete file upload functionality with:
+  - Multer for file handling
+  - Sharp for image processing and optimization
+  - Database integration for media file metadata
+  - Frontend upload UI with drag-and-drop support
+- **Email Verification**: Added email confirmation system using SendGrid
+- **UI Improvements**: 
+  - Removed generic profile avatar, replaced with user initials
+  - Removed bio field from settings page
+  - Enhanced composer with file upload interface
+- **Database Updates**: 
+  - Added media_files table for file metadata
+  - Added email verification fields to users table
+  - Updated posts table to reference media files by ID instead of URLs
+
 ## System Architecture
 
 ### Frontend Architecture
@@ -25,6 +44,8 @@ Preferred communication style: Simple, everyday language.
 - **Database Provider**: Neon (serverless PostgreSQL)
 - **Authentication**: Session-based auth with bcrypt for password hashing
 - **API Design**: RESTful endpoints with JSON responses
+- **File Storage**: Local file system with multer and sharp for image processing
+- **Email Service**: SendGrid integration for email verification
 
 ### Key Components
 
@@ -35,10 +56,11 @@ Preferred communication style: Simple, everyday language.
 - User registration and login endpoints
 
 #### Database Schema
-- **Users**: Basic user accounts with username, email, password
+- **Users**: Basic user accounts with username, email, password, email verification status
 - **Platforms**: Available social media platforms with metadata
 - **User Platform Connections**: OAuth tokens and connection details
-- **Posts**: Content with scheduling and status tracking
+- **Posts**: Content with scheduling and status tracking, media file references
+- **Media Files**: Uploaded images and videos with metadata
 - **Job Queue**: Background job processing for publishing
 
 #### OAuth Integration

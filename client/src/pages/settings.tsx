@@ -56,13 +56,7 @@ export default function Settings() {
                   />
                 </div>
               </div>
-              <div>
-                <Label htmlFor="bio">Bio</Label>
-                <Input
-                  id="bio"
-                  placeholder="Tell us about yourself"
-                />
-              </div>
+
               <Button className="bg-indigo-600 hover:bg-indigo-700">
                 <Save className="w-4 h-4 mr-2" />
                 Save Profile

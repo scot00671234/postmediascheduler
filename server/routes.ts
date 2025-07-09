@@ -5,11 +5,21 @@ import { oauthService } from "./services/oauth";
 import { queueService } from "./services/queue";
 import { schedulerService } from "./services/scheduler";
 import { platformService } from "./services/platforms";
+import { emailService } from "./services/email";
 import { z } from "zod";
-import { insertPostSchema, insertUserSchema } from "@shared/schema";
+import { insertPostSchema, insertUserSchema, insertMediaFileSchema, users } from "@shared/schema";
+import express from "express";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import session from "express-session";
 import { nanoid } from "nanoid";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import { v4 as uuidv4 } from "uuid";
+import sharp from "sharp";
+import mime from "mime-types";
 
 
 // Middleware for authentication
@@ -57,6 +67,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Initialize platforms
   await initializePlatforms();
+
+  // Create uploads directory if it doesn't exist
+  const uploadsDir = path.join(process.cwd(), 'uploads');
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+
+  // Configure multer for file uploads
+  const multerStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, uploadsDir);
+    },
+    filename: (req, file, cb) => {
+      const fileExtension = path.extname(file.originalname);
+      const filename = `${uuidv4()}${fileExtension}`;
+      cb(null, filename);
+    }
+  });
+
+  const upload = multer({
+    storage: multerStorage,
+    fileFilter: (req, file, cb) => {
+      // Accept images and videos
+      if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
+        cb(null, true);
+      } else {
+        cb(new Error('Only image and video files are allowed'));
+      }
+    },
+    limits: {
+      fileSize: 100 * 1024 * 1024, // 100MB limit
+    }
+  });
+
+  // Serve uploaded files
+  app.use('/uploads', express.static(uploadsDir));
 
   // Auth routes
   app.post("/api/auth/register", async (req, res) => {
@@ -256,7 +302,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const post = await storage.createPost({
         userId: req.session.userId!,
         content,
-        mediaUrls,
+        mediaFileIds: mediaUrls ? mediaUrls.map(Number) : [],
         scheduledAt: scheduledAt ? new Date(scheduledAt) : undefined,
         status: scheduledAt ? "scheduled" : "publishing",
       });
@@ -319,7 +365,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { id } = req.params;
       const post = await storage.getPostWithPlatforms(parseInt(id));
       
-      if (!post || post.userId !== req.session.userId) {
+      if (!post || post.userId !== req.session.userId!) {
         return res.status(404).json({ error: "Post not found" });
       }
       
@@ -334,7 +380,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { id } = req.params;
       const post = await storage.getPost(parseInt(id));
       
-      if (!post || post.userId !== req.session.userId) {
+      if (!post || post.userId !== req.session.userId!) {
         return res.status(404).json({ error: "Post not found" });
       }
       
@@ -345,10 +391,161 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // File upload routes
+  app.post("/api/upload", requireAuth, upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      const filePath = path.join(uploadsDir, req.file.filename);
+      let processedPath = filePath;
+
+      // Process images with sharp
+      if (req.file.mimetype.startsWith('image/')) {
+        const processedFilename = `processed_${req.file.filename}`;
+        processedPath = path.join(uploadsDir, processedFilename);
+        
+        await sharp(filePath)
+          .resize(1920, 1080, { fit: 'inside', withoutEnlargement: true })
+          .jpeg({ quality: 85 })
+          .toFile(processedPath);
+          
+        // Remove original file
+        fs.unlinkSync(filePath);
+      }
+
+      // Save file info to database
+      const mediaFile = await storage.createMediaFile({
+        userId: req.session.userId!,
+        filename: path.basename(processedPath),
+        originalName: req.file.originalname,
+        mimeType: req.file.mimetype,
+        size: req.file.size,
+        url: `/uploads/${path.basename(processedPath)}`,
+      });
+
+      res.json({
+        id: mediaFile.id,
+        filename: mediaFile.filename,
+        originalName: mediaFile.originalName,
+        url: mediaFile.url,
+        size: mediaFile.size,
+        mimeType: mediaFile.mimeType,
+      });
+    } catch (error) {
+      res.status(500).json({ error: error instanceof Error ? error.message : "Upload failed" });
+    }
+  });
+
+  app.get("/api/media", requireAuth, async (req, res) => {
+    try {
+      const mediaFiles = await storage.getUserMediaFiles(req.session.userId!);
+      res.json(mediaFiles);
+    } catch (error) {
+      res.status(500).json({ error: error instanceof Error ? error.message : "Failed to get media files" });
+    }
+  });
+
+  app.delete("/api/media/:id", requireAuth, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const mediaFile = await storage.getMediaFile(parseInt(id));
+      
+      if (!mediaFile || mediaFile.userId !== req.session.userId!) {
+        return res.status(404).json({ error: "Media file not found" });
+      }
+
+      // Delete file from disk
+      const filePath = path.join(uploadsDir, mediaFile.filename);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+
+      // Delete from database
+      await storage.deleteMediaFile(parseInt(id));
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: error instanceof Error ? error.message : "Failed to delete media file" });
+    }
+  });
+
+  // Email verification routes
+  app.post("/api/auth/send-verification", requireAuth, async (req, res) => {
+    try {
+      const userId = req.session.userId!;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      if (user.isEmailVerified) {
+        return res.status(400).json({ error: "Email already verified" });
+      }
+
+      const verificationToken = uuidv4();
+      const verificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+      await storage.updateUser(userId, {
+        emailVerificationToken: verificationToken,
+        emailVerificationExpiry: verificationExpiry,
+      });
+
+      // Send verification email
+      const emailSent = await emailService.sendVerificationEmail(
+        user.email,
+        user.username,
+        verificationToken
+      );
+
+      if (emailSent) {
+        res.json({ message: "Verification email sent" });
+      } else {
+        res.json({ 
+          message: "Verification email queued",
+          verificationToken: verificationToken // For testing when SendGrid is not configured
+        });
+      }
+    } catch (error) {
+      res.status(500).json({ error: error instanceof Error ? error.message : "Failed to send verification email" });
+    }
+  });
+
+  app.post("/api/auth/verify-email", async (req, res) => {
+    try {
+      const { token } = req.body;
+      
+      if (!token) {
+        return res.status(400).json({ error: "Verification token required" });
+      }
+
+      const [user] = await db.select().from(users).where(eq(users.emailVerificationToken, token));
+      
+      if (!user) {
+        return res.status(400).json({ error: "Invalid verification token" });
+      }
+
+      if (user.emailVerificationExpiry && user.emailVerificationExpiry < new Date()) {
+        return res.status(400).json({ error: "Verification token expired" });
+      }
+
+      await storage.updateUser(user.id, {
+        isEmailVerified: true,
+        emailVerificationToken: null,
+        emailVerificationExpiry: null,
+      });
+
+      res.json({ message: "Email verified successfully" });
+    } catch (error) {
+      res.status(500).json({ error: error instanceof Error ? error.message : "Email verification failed" });
+    }
+  });
+
   // Analytics routes
   app.get("/api/analytics/dashboard", requireAuth, async (req, res) => {
     try {
-      const stats = await storage.getDashboardStats(req.session.userId);
+      const stats = await storage.getDashboardStats(req.session.userId!);
       res.json(stats);
     } catch (error) {
       res.status(500).json({ error: error instanceof Error ? error.message : "Failed to get analytics" });

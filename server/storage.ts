@@ -1,10 +1,10 @@
 import { 
-  users, platforms, userPlatformConnections, posts, postPlatforms, jobQueue,
+  users, platforms, userPlatformConnections, posts, postPlatforms, jobQueue, mediaFiles,
   type User, type InsertUser, type Platform, type InsertPlatform,
   type UserPlatformConnection, type InsertUserPlatformConnection,
   type Post, type InsertPost, type PostPlatform, type InsertPostPlatform,
   type JobQueue, type InsertJobQueue, type PostWithPlatforms,
-  type UserWithConnections, type DashboardStats
+  type UserWithConnections, type DashboardStats, type MediaFile, type InsertMediaFile
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, lt, count, sql } from "drizzle-orm";
@@ -16,6 +16,7 @@ export interface IStorage {
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(insertUser: InsertUser): Promise<User>;
   getUserWithConnections(userId: number): Promise<UserWithConnections | undefined>;
+  updateUser(id: number, updates: Partial<User>): Promise<void>;
 
   // Platform methods
   getPlatforms(): Promise<Platform[]>;
@@ -28,6 +29,12 @@ export interface IStorage {
   createUserPlatformConnection(insertConnection: InsertUserPlatformConnection): Promise<UserPlatformConnection>;
   updateUserPlatformConnection(id: number, updates: Partial<UserPlatformConnection>): Promise<void>;
   deleteUserPlatformConnection(id: number): Promise<void>;
+
+  // Media File methods
+  createMediaFile(insertMediaFile: InsertMediaFile): Promise<MediaFile>;
+  getMediaFile(id: number): Promise<MediaFile | undefined>;
+  getUserMediaFiles(userId: number): Promise<MediaFile[]>;
+  deleteMediaFile(id: number): Promise<void>;
 
   // Post methods
   createPost(insertPost: InsertPost): Promise<Post>;
@@ -86,6 +93,13 @@ export class DatabaseStorage implements IStorage {
       ...user,
       platformConnections: connections
     };
+  }
+
+  async updateUser(id: number, updates: Partial<User>): Promise<void> {
+    await db
+      .update(users)
+      .set(updates)
+      .where(eq(users.id, id));
   }
 
   // Platform methods
@@ -149,6 +163,32 @@ export class DatabaseStorage implements IStorage {
     await db
       .delete(userPlatformConnections)
       .where(eq(userPlatformConnections.id, id));
+  }
+
+  // Media File methods
+  async createMediaFile(insertMediaFile: InsertMediaFile): Promise<MediaFile> {
+    const [mediaFile] = await db
+      .insert(mediaFiles)
+      .values(insertMediaFile)
+      .returning();
+    return mediaFile;
+  }
+
+  async getMediaFile(id: number): Promise<MediaFile | undefined> {
+    const [mediaFile] = await db.select().from(mediaFiles).where(eq(mediaFiles.id, id));
+    return mediaFile || undefined;
+  }
+
+  async getUserMediaFiles(userId: number): Promise<MediaFile[]> {
+    return await db
+      .select()
+      .from(mediaFiles)
+      .where(eq(mediaFiles.userId, userId))
+      .orderBy(desc(mediaFiles.createdAt));
+  }
+
+  async deleteMediaFile(id: number): Promise<void> {
+    await db.delete(mediaFiles).where(eq(mediaFiles.id, id));
   }
 
   // Post methods

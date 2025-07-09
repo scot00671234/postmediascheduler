@@ -8,7 +8,7 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { toast } from "@/hooks/use-toast";
-import { CloudUpload, Sparkles, Save, Send } from "lucide-react";
+import { CloudUpload, Sparkles, Save, Send, Upload, X, Image, Video } from "lucide-react";
 
 export default function Composer() {
   const [content, setContent] = useState("");
@@ -16,6 +16,7 @@ export default function Composer() {
   const [scheduledDate, setScheduledDate] = useState("");
   const [scheduledTime, setScheduledTime] = useState("");
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
 
   const { data: platforms } = useQuery({
     queryKey: ["/api/platforms"],
@@ -23,6 +24,10 @@ export default function Composer() {
 
   const { data: connections } = useQuery({
     queryKey: ["/api/connections"],
+  });
+
+  const { data: mediaFiles } = useQuery({
+    queryKey: ["/api/media"],
   });
 
   const publishMutation = useMutation({
@@ -41,6 +46,35 @@ export default function Composer() {
     onError: (error) => {
       toast({
         title: "Publish Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const uploadMutation = useMutation({
+    mutationFn: async (formData: FormData) => {
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      if (!response.ok) {
+        throw new Error("Upload failed");
+      }
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setUploadedFiles(prev => [...prev, data]);
+      setMediaUrls(prev => [...prev, data.id.toString()]);
+      queryClient.invalidateQueries({ queryKey: ["/api/media"] });
+      toast({
+        title: "File Uploaded",
+        description: `${data.originalName} uploaded successfully`,
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Upload Failed",
         description: error.message,
         variant: "destructive",
       });
@@ -97,6 +131,21 @@ export default function Composer() {
     setScheduledDate("");
     setScheduledTime("");
     setMediaUrls([]);
+    setUploadedFiles([]);
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    uploadMutation.mutate(formData);
+  };
+
+  const removeFile = (fileId: string) => {
+    setUploadedFiles(prev => prev.filter(f => f.id !== parseInt(fileId)));
+    setMediaUrls(prev => prev.filter(id => id !== fileId));
   };
 
   const getPlatformIcon = (platform: string) => {
@@ -152,17 +201,56 @@ export default function Composer() {
                 
                 <div>
                   <Label>Media</Label>
-                  <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-indigo-400 transition-colors mt-2">
-                    <CloudUpload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                    <p className="text-sm text-slate-600">
-                      Drag and drop files here or{" "}
-                      <Button variant="link" className="p-0 h-auto text-indigo-600 hover:text-indigo-800">
-                        browse
-                      </Button>
-                    </p>
-                    <p className="text-xs text-slate-500 mt-1">
-                      Supports images, videos up to 100MB
-                    </p>
+                  <div className="mt-2 space-y-4">
+                    <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-indigo-400 transition-colors">
+                      <CloudUpload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                      <p className="text-sm text-slate-600">
+                        Drag and drop files here or{" "}
+                        <label className="cursor-pointer text-indigo-600 hover:text-indigo-800 underline">
+                          browse
+                          <input
+                            type="file"
+                            accept="image/*,video/*"
+                            onChange={handleFileUpload}
+                            className="hidden"
+                          />
+                        </label>
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Supports images, videos up to 100MB
+                      </p>
+                      {uploadMutation.isPending && (
+                        <p className="text-xs text-indigo-600 mt-2">Uploading...</p>
+                      )}
+                    </div>
+                    
+                    {uploadedFiles.length > 0 && (
+                      <div className="space-y-2">
+                        {uploadedFiles.map((file) => (
+                          <div key={file.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                            <div className="flex items-center space-x-3">
+                              {file.mimeType.startsWith('image/') ? (
+                                <Image className="w-5 h-5 text-slate-500" />
+                              ) : (
+                                <Video className="w-5 h-5 text-slate-500" />
+                              )}
+                              <div>
+                                <p className="text-sm font-medium text-slate-900">{file.originalName}</p>
+                                <p className="text-xs text-slate-500">{(file.size / 1024 / 1024).toFixed(1)} MB</p>
+                              </div>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeFile(file.id.toString())}
+                              className="text-red-600 hover:text-red-800"
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
                 
