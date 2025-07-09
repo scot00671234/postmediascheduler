@@ -1,0 +1,57 @@
+Build Straight‑To‑The‑Point Cross‑Poster
+Objective
+Create a lightweight service that allows creators to upload content once and post/schedule it seamlessly to X (Twitter), Instagram, LinkedIn, Facebook, TikTok, YouTube, Bluesky, Threads, and Pinterest.
+
+Prompt Specification
+markdown
+Copy
+Edit
+You are an experienced backend developer. Design and implement a **minimalist** content-publishing microservice with these features:
+
+1. **Platform Integration**  
+   - Connect via official APIs for X/Twitter, Instagram, LinkedIn, Facebook, TikTok, YouTube, Bluesky, Threads, Pinterest.
+   - Provide basic OAuth2 authentication flows and token storage per user/platform.
+
+2. **Unified Post Model**  
+   - Support: text, image(s), optional video.
+   - Include optional per-platform overrides (e.g., custom caption length, hashtags).
+
+3. **Cross‑Post Publish**  
+   - A single endpoint: `POST /publish` that takes content + target platforms + optional per-platform overrides.
+   - Automatically splits caption lengths to match platform limits.
+
+4. **Scheduling**  
+   - Support immediate or scheduled posts (`published_at` timestamp).
+   - Handle scheduling logic reliably (e.g., queuing, retries).
+
+5. **Status Tracking**  
+   - Provide publish status per platform (success/fail, post ID, timestamp).
+   - Endpoint: `GET /status/{job_id}` returns status for all targets.
+
+6. **Scalability & Reliability**  
+   - Stateless, publish tasks via message queue.
+   - Basic persistence for jobs & tokens.
+   - Retry logic for failed posts with exponential backoff.
+
+7. **Minimal UI / CLI**  
+   - Optional simple frontend or CLI to upload/schedule content (can use curl or Postman).
+
+8. **Code & Docs**  
+   - Well‑structured code, environment variables configurable.
+   - Clear README with setup steps and API contract.
+🔍 Inspiration & Context
+Based on typical cross‑posting tools (like Post Bridge), this prompt strips away analytics, content recycling, team workflows—zeroing in on pure publish-and-schedule functionality .
+
+A recent minimal scheduler (“PostBoost”) launched to exactly this effect: connect accounts, upload once, schedule or publish to all selected platforms 
+reddit.com
+.
+
+✅ Why This Works
+Minimalist & functional: Focuses solely on publish and schedule—not analytics or extras.
+
+Scalable & robust: Uses queue-based architecture for reliability.
+
+Cross-platform coverage: Supports all major APIs listed by the user.
+
+Extensible: Opens the door for later features like analytics or content-studio additions.
+
