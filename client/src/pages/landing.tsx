@@ -42,52 +42,64 @@ export default function Landing() {
 
   const pricingPlans = [
     {
-      name: "Free",
-      price: "$0",
-      period: "forever",
+      name: "Starter",
+      subtitle: "Best for beginner creators",
+      price: "$7",
+      period: "month",
       features: [
-        "Up to 3 social accounts",
-        "5 posts per month",
-        "Basic analytics",
-        "Community support"
+        "5 connected social accounts",
+        "Multiple accounts per platform",
+        "Unlimited posts",
+        "Schedule posts",
+        "Carousel posts",
+        "250MB file uploads"
       ],
-      cta: "Get Started",
+      cta: "Start Free 7-Day Trial",
       popular: false
+    },
+    {
+      name: "Creator",
+      subtitle: "Best for growing creators",
+      price: "$16",
+      period: "month",
+      features: [
+        "15 connected social accounts",
+        "Multiple accounts per platform",
+        "Unlimited posts",
+        "Schedule posts",
+        "Carousel posts",
+        "500MB file uploads",
+        "Bulk video scheduling",
+        "Content studio access"
+      ],
+      cta: "Start Free 7-Day Trial",
+      popular: true,
+      badge: "Most popular"
     },
     {
       name: "Pro",
-      price: "$19",
+      subtitle: "Best for scaling brands",
+      price: "$25",
       period: "month",
       features: [
-        "Unlimited social accounts",
+        "Unlimited connected accounts",
+        "Multiple accounts per platform",
         "Unlimited posts",
-        "Advanced analytics",
-        "Priority support",
-        "Team collaboration",
-        "Custom branding"
+        "Schedule posts",
+        "Carousel posts",
+        "500MB file uploads",
+        "Bulk video scheduling",
+        "Content studio access",
+        "Viral growth consulting"
       ],
-      cta: "Start Free Trial",
-      popular: true
-    },
-    {
-      name: "Enterprise",
-      price: "$99",
-      period: "month",
-      features: [
-        "Everything in Pro",
-        "Dedicated account manager",
-        "Advanced security",
-        "Custom integrations",
-        "SLA guarantee",
-        "White-label solution"
-      ],
-      cta: "Contact Sales",
-      popular: false
+      cta: "Start Free 7-Day Trial",
+      popular: false,
+      badge: "Best deal"
     }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50">
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         {/* Navigation */}
@@ -103,7 +115,7 @@ export default function Landing() {
               </Button>
             </Link>
             <Link href="/register">
-              <Button className="bg-gray-900 hover:bg-gray-800">
+              <Button className="bg-amber-500 hover:bg-amber-600 text-white">
                 Get Started
               </Button>
             </Link>
@@ -121,12 +133,12 @@ export default function Landing() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
             <Link href="/register">
-              <Button size="lg" className="bg-gray-900 hover:bg-gray-800 px-8 py-3 text-lg">
-                Start Free Trial
+              <Button size="lg" className="bg-amber-500 hover:bg-amber-600 text-white px-8 py-3 text-lg rounded-xl">
+                Start Free 7-Day Trial
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
-            <Button variant="outline" size="lg" className="px-8 py-3 text-lg">
+            <Button variant="outline" size="lg" className="px-8 py-3 text-lg border-amber-300 text-amber-700 hover:bg-amber-50 rounded-xl">
               Watch Demo
             </Button>
           </div>
@@ -156,7 +168,7 @@ export default function Landing() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-amber-25"  style={{ backgroundColor: 'rgb(255, 251, 235)' }}>
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
@@ -168,9 +180,9 @@ export default function Landing() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
-              <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+              <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-shadow bg-white rounded-2xl">
                 <CardHeader className="pb-4">
-                  <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-gray-600 mb-4">
+                  <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600 mb-4">
                     {feature.icon}
                   </div>
                   <CardTitle className="text-lg font-semibold text-gray-900">
@@ -199,36 +211,44 @@ export default function Landing() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {pricingPlans.map((plan, index) => (
-              <Card key={index} className={`relative border-2 ${plan.popular ? 'border-gray-900' : 'border-gray-200'} shadow-lg hover:shadow-xl transition-shadow`}>
-                {plan.popular && (
+              <Card key={index} className={`relative bg-white border-2 ${plan.popular ? 'border-amber-400 shadow-xl' : 'border-amber-200'} rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300`}>
+                {plan.badge && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <Badge className="bg-gray-900 text-white">Most Popular</Badge>
+                    <Badge className={`${plan.popular ? 'bg-amber-500 text-white' : 'bg-amber-100 text-amber-800'} px-4 py-1`}>
+                      {plan.badge}
+                    </Badge>
                   </div>
                 )}
-                <CardHeader className="text-center pb-4">
+                <CardHeader className="text-center pb-4 pt-8">
                   <CardTitle className="text-2xl font-bold text-gray-900">{plan.name}</CardTitle>
-                  <div className="mt-4">
-                    <span className="text-4xl font-bold text-gray-900">{plan.price}</span>
-                    <span className="text-gray-500">/{plan.period}</span>
+                  <p className="text-sm text-gray-600 mt-2">{plan.subtitle}</p>
+                  <div className="mt-6">
+                    <span className="text-5xl font-bold text-gray-900">{plan.price}</span>
+                    <span className="text-gray-500 text-lg">/{plan.period}</span>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-6 px-6 pb-8">
                   <ul className="space-y-3">
                     {plan.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-center space-x-3">
-                        <CheckCircle className="w-5 h-5 text-green-500" />
-                        <span className="text-gray-600">{feature}</span>
+                      <li key={featureIndex} className="flex items-start space-x-3">
+                        <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-700 text-sm">{feature}</span>
                       </li>
                     ))}
                   </ul>
-                  <Link href="/register">
-                    <Button 
-                      className={`w-full mt-6 ${plan.popular ? 'bg-gray-900 hover:bg-gray-800' : 'bg-gray-100 hover:bg-gray-200 text-gray-900'}`}
-                      size="lg"
-                    >
-                      {plan.cta}
-                    </Button>
-                  </Link>
+                  <div className="pt-4">
+                    <Link href="/register">
+                      <Button 
+                        className={`w-full ${plan.popular ? 'bg-amber-500 hover:bg-amber-600 text-white' : 'bg-amber-100 hover:bg-amber-200 text-amber-800'} rounded-xl py-3 text-base font-semibold`}
+                        size="lg"
+                      >
+                        {plan.cta}
+                      </Button>
+                    </Link>
+                    <p className="text-xs text-gray-500 text-center mt-3">
+                      $0.00 due today, cancel anytime
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -237,22 +257,22 @@ export default function Landing() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gray-900 text-white">
+      <section className="py-20 bg-amber-600 text-white">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <h2 className="text-3xl font-bold mb-4">
             Ready to Transform Your Social Media?
           </h2>
-          <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
+          <p className="text-amber-100 mb-8 max-w-2xl mx-auto">
             Join thousands of creators, businesses, and agencies who trust Post Media to manage their social presence.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
             <Link href="/register">
-              <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100 px-8 py-3 text-lg">
-                Start Free Trial
+              <Button size="lg" className="bg-white text-amber-600 hover:bg-amber-50 px-8 py-3 text-lg rounded-xl">
+                Start Free 7-Day Trial
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
-            <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-gray-900 px-8 py-3 text-lg">
+            <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-amber-600 px-8 py-3 text-lg rounded-xl">
               Contact Sales
             </Button>
           </div>
@@ -260,7 +280,7 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-50 py-12">
+      <footer className="bg-amber-50 py-12">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
@@ -294,7 +314,7 @@ export default function Landing() {
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-200 mt-8 pt-8 text-center text-gray-600">
+          <div className="border-t border-amber-200 mt-8 pt-8 text-center text-gray-600">
             <p>&copy; 2025 Post Media. All rights reserved.</p>
           </div>
         </div>
