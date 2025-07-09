@@ -2,12 +2,77 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, NotebookPen, Link, Calendar, CheckCircle, ExternalLink, RefreshCw } from "lucide-react";
+import { Plus, NotebookPen, Link, Calendar, CheckCircle, ExternalLink, RefreshCw, Bell } from "lucide-react";
 import { PlatformCard } from "@/components/ui/platform-card";
 import { PostCard } from "@/components/ui/post-card";
 import { ComposerModal } from "@/components/ui/composer-modal";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
+
+function NotificationBell() {
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([
+    { id: 1, type: "success", message: "Post published successfully to Twitter", time: "2 minutes ago" },
+    { id: 2, type: "warning", message: "Post failed to publish to Instagram", time: "5 minutes ago" },
+    { id: 3, type: "info", message: "Scheduled post ready for tomorrow", time: "10 minutes ago" }
+  ]);
+
+  const markAsRead = (id: number) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  };
+
+  return (
+    <div className="relative">
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        className="relative"
+        onClick={() => setShowNotifications(!showNotifications)}
+      >
+        {notifications.length > 0 && (
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+            {notifications.length}
+          </span>
+        )}
+        <Bell className="w-4 h-4 text-gray-600" />
+      </Button>
+
+      {showNotifications && (
+        <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+          <div className="p-3 border-b border-gray-200">
+            <h3 className="font-medium text-gray-900">Notifications</h3>
+          </div>
+          <div className="max-h-96 overflow-y-auto">
+            {notifications.length === 0 ? (
+              <div className="p-4 text-center text-gray-500">
+                No new notifications
+              </div>
+            ) : (
+              notifications.map((notification) => (
+                <div key={notification.id} className="p-3 border-b border-gray-100 last:border-b-0">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-900">{notification.message}</p>
+                      <p className="text-xs text-gray-500 mt-1">{notification.time}</p>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => markAsRead(notification.id)}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      ✕
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Dashboard() {
   const [showComposer, setShowComposer] = useState(false);
@@ -77,19 +142,12 @@ export default function Dashboard() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
-          <p className="text-sm text-slate-500">Manage your social media posts across all platforms</p>
+          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-sm text-gray-500">Manage your social media posts across all platforms</p>
         </div>
         <div className="flex items-center space-x-4">
-          <div className="relative">
-            <Button variant="ghost" size="sm" className="relative">
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                3
-              </span>
-              <span className="text-slate-400">🔔</span>
-            </Button>
-          </div>
-          <Button onClick={() => setShowComposer(true)} className="bg-indigo-600 hover:bg-indigo-700">
+          <NotificationBell />
+          <Button onClick={() => setShowComposer(true)} className="bg-gray-900 hover:bg-gray-800">
             <Plus className="w-4 h-4 mr-2" />
             New Post
           </Button>
@@ -102,25 +160,11 @@ export default function Dashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-500">Posts This Week</p>
-                <p className="text-2xl font-bold text-slate-900">{stats?.postsThisWeek || 0}</p>
+                <p className="text-sm text-gray-500">Posts This Week</p>
+                <p className="text-2xl font-bold text-gray-900">{stats?.postsThisWeek || 0}</p>
               </div>
-              <div className="bg-indigo-100 p-3 rounded-full">
-                <NotebookPen className="w-5 h-5 text-indigo-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-slate-500">Connected Platforms</p>
-                <p className="text-2xl font-bold text-slate-900">{stats?.connectedPlatforms || 0}</p>
-              </div>
-              <div className="bg-green-100 p-3 rounded-full">
-                <Link className="w-5 h-5 text-green-600" />
+              <div className="bg-gray-100 p-3 rounded-full">
+                <NotebookPen className="w-5 h-5 text-gray-600" />
               </div>
             </div>
           </CardContent>
@@ -130,11 +174,11 @@ export default function Dashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-500">Scheduled Posts</p>
-                <p className="text-2xl font-bold text-slate-900">{stats?.scheduledPosts || 0}</p>
+                <p className="text-sm text-gray-500">Connected Platforms</p>
+                <p className="text-2xl font-bold text-gray-900">{stats?.connectedPlatforms || 0}</p>
               </div>
-              <div className="bg-amber-100 p-3 rounded-full">
-                <Calendar className="w-5 h-5 text-amber-600" />
+              <div className="bg-gray-100 p-3 rounded-full">
+                <Link className="w-5 h-5 text-gray-600" />
               </div>
             </div>
           </CardContent>
@@ -144,11 +188,25 @@ export default function Dashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-500">Success Rate</p>
-                <p className="text-2xl font-bold text-slate-900">{stats?.successRate || "0%"}</p>
+                <p className="text-sm text-gray-500">Scheduled Posts</p>
+                <p className="text-2xl font-bold text-gray-900">{stats?.scheduledPosts || 0}</p>
               </div>
-              <div className="bg-emerald-100 p-3 rounded-full">
-                <CheckCircle className="w-5 h-5 text-emerald-600" />
+              <div className="bg-gray-100 p-3 rounded-full">
+                <Calendar className="w-5 h-5 text-gray-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500">Success Rate</p>
+                <p className="text-2xl font-bold text-gray-900">{stats?.successRate || "0%"}</p>
+              </div>
+              <div className="bg-gray-100 p-3 rounded-full">
+                <CheckCircle className="w-5 h-5 text-gray-600" />
               </div>
             </div>
           </CardContent>

@@ -167,8 +167,8 @@ export default function Composer() {
     <div className="flex-1 overflow-y-auto p-6">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-slate-900">Compose Post</h1>
-          <p className="text-sm text-slate-500">Create and schedule content for multiple platforms</p>
+          <h1 className="text-2xl font-bold text-gray-900">Compose Post</h1>
+          <p className="text-sm text-gray-500">Create and schedule content for multiple platforms</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -189,24 +189,20 @@ export default function Composer() {
                     className="min-h-[150px] mt-2"
                   />
                   <div className="flex items-center justify-between mt-2">
-                    <span className="text-sm text-slate-500">
+                    <span className="text-sm text-gray-500">
                       Characters: {content.length}
                     </span>
-                    <Button variant="ghost" size="sm" className="text-indigo-600 hover:text-indigo-800">
-                      <Sparkles className="w-4 h-4 mr-1" />
-                      AI Assistant
-                    </Button>
                   </div>
                 </div>
                 
                 <div>
                   <Label>Media</Label>
                   <div className="mt-2 space-y-4">
-                    <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-indigo-400 transition-colors">
-                      <CloudUpload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                      <p className="text-sm text-slate-600">
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                      <CloudUpload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-sm text-gray-600">
                         Drag and drop files here or{" "}
-                        <label className="cursor-pointer text-indigo-600 hover:text-indigo-800 underline">
+                        <label className="cursor-pointer text-gray-900 hover:text-gray-700 underline">
                           browse
                           <input
                             type="file"
@@ -216,27 +212,27 @@ export default function Composer() {
                           />
                         </label>
                       </p>
-                      <p className="text-xs text-slate-500 mt-1">
+                      <p className="text-xs text-gray-500 mt-1">
                         Supports images, videos up to 100MB
                       </p>
                       {uploadMutation.isPending && (
-                        <p className="text-xs text-indigo-600 mt-2">Uploading...</p>
+                        <p className="text-xs text-gray-700 mt-2">Uploading...</p>
                       )}
                     </div>
                     
                     {uploadedFiles.length > 0 && (
                       <div className="space-y-2">
                         {uploadedFiles.map((file) => (
-                          <div key={file.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                          <div key={file.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                             <div className="flex items-center space-x-3">
                               {file.mimeType.startsWith('image/') ? (
-                                <Image className="w-5 h-5 text-slate-500" />
+                                <Image className="w-5 h-5 text-gray-500" />
                               ) : (
-                                <Video className="w-5 h-5 text-slate-500" />
+                                <Video className="w-5 h-5 text-gray-500" />
                               )}
                               <div>
-                                <p className="text-sm font-medium text-slate-900">{file.originalName}</p>
-                                <p className="text-xs text-slate-500">{(file.size / 1024 / 1024).toFixed(1)} MB</p>
+                                <p className="text-sm font-medium text-gray-900">{file.originalName}</p>
+                                <p className="text-xs text-gray-500">{(file.size / 1024 / 1024).toFixed(1)} MB</p>
                               </div>
                             </div>
                             <Button
@@ -258,7 +254,7 @@ export default function Composer() {
                   <Label>Scheduling</Label>
                   <div className="grid grid-cols-2 gap-4 mt-2">
                     <div>
-                      <Label htmlFor="date" className="text-xs text-slate-500">Date</Label>
+                      <Label htmlFor="date" className="text-xs text-gray-500">Date</Label>
                       <Input
                         id="date"
                         type="date"
@@ -268,7 +264,7 @@ export default function Composer() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="time" className="text-xs text-slate-500">Time</Label>
+                      <Label htmlFor="time" className="text-xs text-gray-500">Time</Label>
                       <Input
                         id="time"
                         type="time"
@@ -292,7 +288,7 @@ export default function Composer() {
               <CardContent>
                 <div className="space-y-3">
                   {availablePlatforms.map((platform: any) => (
-                    <div key={platform.id} className="flex items-center justify-between p-3 border border-slate-200 rounded-md">
+                    <div key={platform.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-md">
                       <div className="flex items-center space-x-3">
                         <Checkbox
                           id={platform.name}
@@ -304,7 +300,7 @@ export default function Composer() {
                           <span className="text-sm font-medium">{platform.displayName}</span>
                         </Label>
                       </div>
-                      <Button variant="ghost" size="sm" className="text-slate-400 hover:text-slate-600">
+                      <Button variant="ghost" size="sm" className="text-gray-400 hover:text-gray-600">
                         ⚙️
                       </Button>
                     </div>
@@ -316,7 +312,7 @@ export default function Composer() {
         </div>
 
         <div className="flex items-center justify-between mt-8 pt-6 border-t">
-          <Button variant="ghost" className="text-slate-600 hover:text-slate-800">
+          <Button variant="ghost" className="text-gray-600 hover:text-gray-800">
             <Save className="w-4 h-4 mr-2" />
             Save Draft
           </Button>
@@ -327,7 +323,7 @@ export default function Composer() {
             <Button 
               onClick={handlePublish} 
               disabled={publishMutation.isPending}
-              className="bg-indigo-600 hover:bg-indigo-700"
+              className="bg-gray-900 hover:bg-gray-800"
             >
               <Send className="w-4 h-4 mr-2" />
               {publishMutation.isPending ? "Publishing..." : "Publish Now"}
