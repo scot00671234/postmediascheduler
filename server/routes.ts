@@ -259,10 +259,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      res.redirect("/?connected=true");
+      res.redirect("/dashboard?connected=true");
     } catch (error) {
       console.error("OAuth callback error:", error);
-      res.redirect("/?error=oauth_failed");
+      res.redirect("/dashboard?error=oauth_failed");
     }
   });
 

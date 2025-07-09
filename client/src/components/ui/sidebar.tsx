@@ -22,7 +22,7 @@ export function Sidebar() {
   const handleLogout = async () => {
     try {
       await apiRequest("POST", "/api/auth/logout");
-      window.location.href = "/login";
+      window.location.href = "/";
     } catch (error) {
       toast({
         title: "Logout Failed",
@@ -33,7 +33,7 @@ export function Sidebar() {
   };
 
   const navigation = [
-    { name: "Dashboard", href: "/", icon: Home },
+    { name: "Dashboard", href: "/dashboard", icon: Home },
     { name: "Compose", href: "/compose", icon: Edit },
     { name: "Scheduled", href: "/scheduled", icon: Calendar },
     { name: "Connections", href: "/connections", icon: LinkIcon },

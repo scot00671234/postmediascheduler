@@ -13,11 +13,15 @@ import Scheduled from "@/pages/scheduled";
 import Settings from "@/pages/settings";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
+import Landing from "@/pages/landing";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
+      {/* Landing page */}
+      <Route path="/" component={Landing} />
+      
       {/* Auth routes */}
       <Route path="/login">
         <AuthLayout>
@@ -31,7 +35,7 @@ function Router() {
       </Route>
       
       {/* Protected app routes */}
-      <Route path="/">
+      <Route path="/dashboard">
         <ProtectedRoute>
           <AppLayout>
             <Dashboard />
