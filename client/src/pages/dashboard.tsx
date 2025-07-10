@@ -11,11 +11,7 @@ import { toast } from "@/hooks/use-toast";
 
 function NotificationBell() {
   const [showNotifications, setShowNotifications] = useState(false);
-  const [notifications, setNotifications] = useState([
-    { id: 1, type: "success", message: "Post published successfully to Twitter", time: "2 minutes ago" },
-    { id: 2, type: "warning", message: "Post failed to publish to Instagram", time: "5 minutes ago" },
-    { id: 3, type: "info", message: "Scheduled post ready for tomorrow", time: "10 minutes ago" }
-  ]);
+  const [notifications, setNotifications] = useState([]);
 
   const markAsRead = (id: number) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
