@@ -162,10 +162,6 @@ export function ComposerModal({ isOpen, onClose }: ComposerModalProps) {
                 <span className="text-sm text-slate-500">
                   Characters: {content.length}
                 </span>
-                <Button variant="ghost" size="sm" className="text-indigo-600 hover:text-indigo-800">
-                  <Sparkles className="w-4 h-4 mr-1" />
-                  AI Assistant
-                </Button>
               </div>
             </div>
             
