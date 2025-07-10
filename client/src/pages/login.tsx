@@ -23,7 +23,7 @@ export default function Login() {
         title: "Login Successful",
         description: "Welcome back!",
       });
-      setLocation("/");
+      setLocation("/dashboard");
     },
     onError: (error) => {
       toast({
