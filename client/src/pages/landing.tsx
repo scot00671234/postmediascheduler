@@ -67,7 +67,6 @@ export default function Landing() {
         "Multiple accounts per platform",
         "Unlimited posts",
         "Schedule posts",
-        "Carousel posts",
         "250MB file uploads"
       ],
       cta: "Start Free 7-Day Trial",
@@ -83,10 +82,7 @@ export default function Landing() {
         "Multiple accounts per platform",
         "Unlimited posts",
         "Schedule posts",
-        "Carousel posts",
-        "500MB file uploads",
-        "Bulk video scheduling",
-        "Content studio access"
+        "500MB file uploads"
       ],
       cta: "Start Free 7-Day Trial",
       popular: true,
@@ -102,11 +98,7 @@ export default function Landing() {
         "Multiple accounts per platform",
         "Unlimited posts",
         "Schedule posts",
-        "Carousel posts",
-        "500MB file uploads",
-        "Bulk video scheduling",
-        "Content studio access",
-        "Viral growth consulting"
+        "500MB file uploads"
       ],
       cta: "Start Free 7-Day Trial",
       popular: false,
