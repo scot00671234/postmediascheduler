@@ -565,7 +565,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      const { priceId } = req.body;
+      const { planName, amount } = req.body;
       const user = await storage.getUser(req.session.userId!);
       
       if (!user) {
@@ -587,10 +587,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await storage.updateStripeCustomerId(user.id, customerId);
       }
 
+      // Create product and price on the fly
+      const product = await stripe.products.create({
+        name: `Post Media - ${planName} Plan`,
+        description: `${planName} subscription plan for Post Media`,
+      });
+
+      const price = await stripe.prices.create({
+        unit_amount: amount,
+        currency: 'usd',
+        recurring: {
+          interval: 'month',
+        },
+        product: product.id,
+      });
+
       // Create subscription with 7-day trial
       const subscription = await stripe.subscriptions.create({
         customer: customerId,
-        items: [{ price: priceId }],
+        items: [{ price: price.id }],
         payment_behavior: 'default_incomplete',
         payment_settings: { save_default_payment_method: 'on_subscription' },
         expand: ['latest_invoice.payment_intent'],

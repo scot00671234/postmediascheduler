@@ -93,7 +93,7 @@ export default function Subscribe() {
     starter: {
       name: "Starter",
       price: "$7",
-      priceId: "price_starter_7day_trial",
+      amount: 700, // $7 in cents
       features: [
         "5 connected social accounts",
         "Multiple accounts per platform",
@@ -106,7 +106,7 @@ export default function Subscribe() {
     creator: {
       name: "Creator",
       price: "$16",
-      priceId: "price_creator_7day_trial",
+      amount: 1600, // $16 in cents
       features: [
         "15 connected social accounts",
         "Multiple accounts per platform",
@@ -122,7 +122,7 @@ export default function Subscribe() {
     pro: {
       name: "Pro",
       price: "$25",
-      priceId: "price_pro_7day_trial",
+      amount: 2500, // $25 in cents
       features: [
         "Unlimited connected accounts",
         "Multiple accounts per platform",
@@ -149,7 +149,8 @@ export default function Subscribe() {
     const createSubscription = async () => {
       try {
         const response = await apiRequest("POST", "/api/create-subscription", {
-          priceId: plans[selectedPlan as keyof typeof plans].priceId,
+          planName: plans[selectedPlan as keyof typeof plans].name,
+          amount: plans[selectedPlan as keyof typeof plans].amount,
         });
         const data = await response.json();
         setClientSecret(data.clientSecret);
