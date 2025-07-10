@@ -48,49 +48,51 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md bg-white/90 backdrop-blur-sm border-amber-200 shadow-lg">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Sign In</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-2xl font-bold text-amber-900">Sign In</CardTitle>
+          <CardDescription className="text-amber-700">
             Enter your credentials to access your account
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-amber-800">Email</Label>
               <Input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
+                className="border-amber-200 focus:border-amber-400 focus:ring-amber-400"
                 required
               />
             </div>
             <div>
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-amber-800">Password</Label>
               <Input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
+                className="border-amber-200 focus:border-amber-400 focus:ring-amber-400"
                 required
               />
             </div>
             <Button 
               type="submit" 
-              className="w-full"
+              className="w-full bg-amber-600 hover:bg-amber-700 text-white"
               disabled={loginMutation.isPending}
             >
               {loginMutation.isPending ? "Signing In..." : "Sign In"}
             </Button>
           </form>
           <div className="mt-4 text-center text-sm">
-            <span className="text-slate-600">Don't have an account? </span>
-            <Link href="/register" className="text-indigo-600 hover:text-indigo-500 font-medium">
+            <span className="text-amber-700">Don't have an account? </span>
+            <Link href="/register" className="text-amber-600 hover:text-amber-800 font-medium">
               Sign up
             </Link>
           </div>

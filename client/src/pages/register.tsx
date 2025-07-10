@@ -70,71 +70,75 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md bg-white/90 backdrop-blur-sm border-amber-200 shadow-lg">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Create Account</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-2xl font-bold text-amber-900">Create Account</CardTitle>
+          <CardDescription className="text-amber-700">
             Sign up to start cross-posting to multiple platforms
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="username" className="text-amber-800">Username</Label>
               <Input
                 id="username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Enter your username"
+                className="border-amber-200 focus:border-amber-400 focus:ring-amber-400"
                 required
               />
             </div>
             <div>
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-amber-800">Email</Label>
               <Input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
+                className="border-amber-200 focus:border-amber-400 focus:ring-amber-400"
                 required
               />
             </div>
             <div>
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-amber-800">Password</Label>
               <Input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Create a password"
+                className="border-amber-200 focus:border-amber-400 focus:ring-amber-400"
                 required
               />
             </div>
             <div>
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmPassword" className="text-amber-800">Confirm Password</Label>
               <Input
                 id="confirmPassword"
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Confirm your password"
+                className="border-amber-200 focus:border-amber-400 focus:ring-amber-400"
                 required
               />
             </div>
             <Button 
               type="submit" 
-              className="w-full"
+              className="w-full bg-amber-600 hover:bg-amber-700 text-white"
               disabled={registerMutation.isPending}
             >
               {registerMutation.isPending ? "Creating Account..." : "Create Account"}
             </Button>
           </form>
           <div className="mt-4 text-center text-sm">
-            <span className="text-slate-600">Already have an account? </span>
-            <Link href="/login" className="text-indigo-600 hover:text-indigo-500 font-medium">
+            <span className="text-amber-700">Already have an account? </span>
+            <Link href="/login" className="text-amber-600 hover:text-amber-800 font-medium">
               Sign in
             </Link>
           </div>
