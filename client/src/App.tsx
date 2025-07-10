@@ -30,7 +30,12 @@ function Router() {
           <Login />
         </AuthLayout>
       </Route>
-      <Route path="/register" component={Subscribe} />
+      <Route path="/register">
+        <AuthLayout>
+          <Register />
+        </AuthLayout>
+      </Route>
+      <Route path="/subscribe" component={Subscribe} />
       
       <Route path="/billing">
         <ProtectedRoute>

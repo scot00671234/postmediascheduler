@@ -90,10 +90,8 @@ export default function Login() {
           </form>
           <div className="mt-4 text-center text-sm">
             <span className="text-slate-600">Don't have an account? </span>
-            <Link href="/register">
-              <a className="text-indigo-600 hover:text-indigo-500 font-medium">
-                Sign up
-              </a>
+            <Link href="/register" className="text-indigo-600 hover:text-indigo-500 font-medium">
+              Sign up
             </Link>
           </div>
         </CardContent>
