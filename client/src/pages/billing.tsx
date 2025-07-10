@@ -30,8 +30,9 @@ export default function Billing() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Get current subscription
-  const { data: subscription, isLoading } = useQuery<Subscription>({
+  const { data: subscription, isLoading, error } = useQuery<Subscription>({
     queryKey: ["/api/subscription"],
+    retry: false,
   });
 
   // Cancel subscription mutation
@@ -142,6 +143,26 @@ export default function Billing() {
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error && error.message.includes('Stripe not configured')) {
+    return (
+      <div className="flex-1 overflow-y-auto p-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center py-12">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Billing Setup Required</h1>
+            <p className="text-gray-600 mb-6">
+              Billing features are not yet configured. The Stripe secret key is needed to manage subscriptions and cancellations.
+            </p>
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-left max-w-md mx-auto">
+              <p className="text-sm text-amber-800">
+                <strong>Note:</strong> You provided the restricted publishable key, but the secret key (starting with "sk_") is required for subscription management.
+              </p>
+            </div>
           </div>
         </div>
       </div>
