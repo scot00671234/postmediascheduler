@@ -178,7 +178,10 @@ export default function Billing() {
             <p className="text-gray-600 mb-6">
               You don't have an active subscription. Start your free trial to access all features.
             </p>
-            <Button className="bg-amber-500 hover:bg-amber-600 text-white">
+            <Button 
+              className="bg-amber-500 hover:bg-amber-600 text-white"
+              onClick={() => window.location.href = '/subscription-setup'}
+            >
               Start Free Trial
             </Button>
           </div>

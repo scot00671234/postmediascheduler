@@ -572,6 +572,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "User not found" });
       }
 
+      // Check if user already has an active subscription
+      if (user.stripeSubscriptionId) {
+        const existingSubscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+        if (existingSubscription.status === 'active' || existingSubscription.status === 'trialing') {
+          return res.status(400).json({ error: "User already has an active subscription" });
+        }
+      }
+
       let customerId = user.stripeCustomerId;
 
       // Create customer if doesn't exist
@@ -587,40 +595,105 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await storage.updateStripeCustomerId(user.id, customerId);
       }
 
-      // Create product and price on the fly
-      const product = await stripe.products.create({
-        name: `Post Media - ${planName} Plan`,
-        description: `${planName} subscription plan for Post Media`,
-      });
+      // Create or get price based on plan
+      let priceId: string;
+      const planAmounts = {
+        'Pro': 700, // $7.00
+        'Team': 1600, // $16.00  
+        'Enterprise': 2500 // $25.00
+      };
 
-      const price = await stripe.prices.create({
-        unit_amount: amount,
-        currency: 'usd',
-        recurring: {
-          interval: 'month',
-        },
-        product: product.id,
-      });
+      const planAmount = planAmounts[planName as keyof typeof planAmounts];
+      if (!planAmount) {
+        return res.status(400).json({ error: "Invalid plan name" });
+      }
+
+      // Try to find existing product and price
+      try {
+        const products = await stripe.products.list({
+          active: true,
+          limit: 100,
+        });
+        
+        let product = products.data.find(p => p.name === `CrossPost Pro - ${planName}`);
+        
+        if (!product) {
+          // Create new product
+          product = await stripe.products.create({
+            name: `CrossPost Pro - ${planName}`,
+            description: `${planName} plan for CrossPost Pro - Multi-platform social media publishing`,
+            metadata: {
+              planType: planName.toLowerCase(),
+              environment: process.env.NODE_ENV || 'development',
+            },
+          });
+        }
+
+        // Look for existing price
+        const prices = await stripe.prices.list({
+          product: product.id,
+          active: true,
+          type: 'recurring',
+        });
+
+        let price = prices.data.find(p => p.unit_amount === planAmount);
+        
+        if (!price) {
+          // Create new price
+          price = await stripe.prices.create({
+            unit_amount: planAmount,
+            currency: 'usd',
+            recurring: {
+              interval: 'month',
+            },
+            product: product.id,
+            metadata: {
+              planType: planName.toLowerCase(),
+              environment: process.env.NODE_ENV || 'development',
+            },
+          });
+        }
+
+        priceId = price.id;
+      } catch (priceError) {
+        console.error('Error creating/finding price:', priceError);
+        return res.status(500).json({ error: 'Failed to set up pricing' });
+      }
 
       // Create subscription with 7-day trial
       const subscription = await stripe.subscriptions.create({
         customer: customerId,
-        items: [{ price: price.id }],
+        items: [{ price: priceId }],
         payment_behavior: 'default_incomplete',
         payment_settings: { save_default_payment_method: 'on_subscription' },
         expand: ['latest_invoice.payment_intent'],
         trial_period_days: 7,
+        metadata: {
+          planName: planName,
+          userId: user.id.toString(),
+        },
       });
 
-      // Update user with subscription ID
-      await storage.updateUserStripeInfo(user.id, customerId, subscription.id);
+      // Calculate trial end date
+      const trialEndDate = new Date();
+      trialEndDate.setDate(trialEndDate.getDate() + 7);
+
+      // Update user with subscription info and trial end date
+      await storage.updateUser(user.id, {
+        stripeCustomerId: customerId,
+        stripeSubscriptionId: subscription.id,
+        subscriptionStatus: 'trialing',
+        trialEndsAt: trialEndDate,
+      });
 
       res.json({
         subscriptionId: subscription.id,
         clientSecret: subscription.latest_invoice?.payment_intent?.client_secret,
+        trialEndDate: trialEndDate.toISOString(),
       });
     } catch (error: any) {
-      res.status(500).json({ error: error.message });
+      console.error('Subscription creation error:', error);
+      res.status(500).json({ error: error.message || 'Failed to create subscription' });
     }
   });
 
@@ -637,12 +710,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId, {
-        expand: ['latest_invoice.payment_intent'],
+        expand: ['latest_invoice.payment_intent', 'default_payment_method'],
       });
 
-      res.json(subscription);
+      // Update local subscription status
+      await storage.updateUser(user.id, {
+        subscriptionStatus: subscription.status,
+      });
+
+      res.json({
+        ...subscription,
+        trialEndsAt: user.trialEndsAt,
+        user: {
+          id: user.id,
+          email: user.email,
+          username: user.username,
+        }
+      });
     } catch (error: any) {
-      res.status(500).json({ error: error.message });
+      console.error('Subscription retrieval error:', error);
+      res.status(500).json({ error: error.message || 'Failed to retrieve subscription' });
     }
   });
 
@@ -710,6 +797,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ url: session.url });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Webhook endpoint for Stripe events
+  app.post("/api/stripe/webhook", express.raw({ type: 'application/json' }), async (req, res) => {
+    if (!stripe) {
+      return res.status(500).json({ error: "Stripe not configured" });
+    }
+
+    const sig = req.headers['stripe-signature'] as string;
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    let event;
+
+    try {
+      if (webhookSecret) {
+        event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+      } else {
+        // For development/testing, just parse the body directly
+        event = JSON.parse(req.body.toString());
+      }
+    } catch (err: any) {
+      console.error('Webhook signature verification failed:', err.message);
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    try {
+      switch (event.type) {
+        case 'customer.subscription.updated':
+        case 'customer.subscription.deleted':
+          const subscription = event.data.object;
+          const userId = subscription.metadata?.userId;
+          
+          if (userId) {
+            await storage.updateUser(parseInt(userId), {
+              subscriptionStatus: subscription.status,
+            });
+          }
+          break;
+
+        case 'invoice.payment_succeeded':
+          const invoice = event.data.object;
+          if (invoice.subscription) {
+            // Update subscription status on successful payment
+            const sub = await stripe.subscriptions.retrieve(invoice.subscription as string);
+            const subUserId = sub.metadata?.userId;
+            
+            if (subUserId) {
+              await storage.updateUser(parseInt(subUserId), {
+                subscriptionStatus: sub.status,
+              });
+            }
+          }
+          break;
+
+        case 'invoice.payment_failed':
+          const failedInvoice = event.data.object;
+          if (failedInvoice.subscription) {
+            const failedSub = await stripe.subscriptions.retrieve(failedInvoice.subscription as string);
+            const failedUserId = failedSub.metadata?.userId;
+            
+            if (failedUserId) {
+              await storage.updateUser(parseInt(failedUserId), {
+                subscriptionStatus: failedSub.status,
+              });
+            }
+          }
+          break;
+
+        default:
+          console.log(`Unhandled event type ${event.type}`);
+      }
+
+      res.json({ received: true });
+    } catch (error) {
+      console.error('Webhook processing error:', error);
+      res.status(500).json({ error: 'Webhook processing failed' });
     }
   });
 

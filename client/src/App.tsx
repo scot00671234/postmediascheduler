@@ -15,6 +15,7 @@ import Login from "@/pages/login";
 import Register from "@/pages/register";
 import Landing from "@/pages/landing";
 import Subscribe from "@/pages/subscribe";
+import SubscriptionSetup from "@/pages/subscription-setup";
 import Billing from "@/pages/billing";
 import NotFound from "@/pages/not-found";
 
@@ -36,6 +37,7 @@ function Router() {
         </AuthLayout>
       </Route>
       <Route path="/subscribe" component={Subscribe} />
+      <Route path="/subscription-setup" component={SubscriptionSetup} />
       
       <Route path="/billing">
         <ProtectedRoute>
