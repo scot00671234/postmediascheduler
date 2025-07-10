@@ -34,32 +34,32 @@ function NotificationBell() {
             {notifications.length}
           </span>
         )}
-        <Bell className="w-4 h-4 text-gray-600" />
+        <Bell className="w-4 h-4 text-amber-600" />
       </Button>
 
       {showNotifications && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-          <div className="p-3 border-b border-gray-200">
-            <h3 className="font-medium text-gray-900">Notifications</h3>
+        <div className="absolute right-0 mt-2 w-80 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg border border-amber-200 z-50">
+          <div className="p-3 border-b border-amber-200">
+            <h3 className="font-medium text-amber-900">Notifications</h3>
           </div>
           <div className="max-h-96 overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="p-4 text-center text-gray-500">
+              <div className="p-4 text-center text-amber-700">
                 No new notifications
               </div>
             ) : (
               notifications.map((notification) => (
-                <div key={notification.id} className="p-3 border-b border-gray-100 last:border-b-0">
+                <div key={notification.id} className="p-3 border-b border-amber-100 last:border-b-0">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <p className="text-sm text-gray-900">{notification.message}</p>
-                      <p className="text-xs text-gray-500 mt-1">{notification.time}</p>
+                      <p className="text-sm text-amber-900">{notification.message}</p>
+                      <p className="text-xs text-amber-700 mt-1">{notification.time}</p>
                     </div>
                     <Button 
                       variant="ghost" 
                       size="sm"
                       onClick={() => markAsRead(notification.id)}
-                      className="text-gray-400 hover:text-gray-600"
+                      className="text-amber-600 hover:text-amber-800"
                     >
                       ✕
                     </Button>
@@ -138,16 +138,16 @@ export default function Dashboard() {
   })) || [];
 
   return (
-    <div className="flex-1 overflow-y-auto p-6">
+    <div className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-amber-50 to-orange-50">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-sm text-gray-500">Manage your social media posts across all platforms</p>
+          <h1 className="text-2xl font-bold text-amber-900">Dashboard</h1>
+          <p className="text-sm text-amber-700">Manage your social media posts across all platforms</p>
         </div>
         <div className="flex items-center space-x-4">
           <NotificationBell />
-          <Button onClick={() => setShowComposer(true)} className="bg-gray-900 hover:bg-gray-800">
+          <Button onClick={() => setShowComposer(true)} className="bg-amber-600 hover:bg-amber-700 text-white shadow-sm">
             <Plus className="w-4 h-4 mr-2" />
             New Post
           </Button>
@@ -156,57 +156,57 @@ export default function Dashboard() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card>
+        <Card className="bg-white/80 backdrop-blur-sm border-amber-200/50 shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Posts This Week</p>
-                <p className="text-2xl font-bold text-gray-900">{stats?.postsThisWeek || 0}</p>
+                <p className="text-sm text-amber-700">Posts This Week</p>
+                <p className="text-2xl font-bold text-amber-900">{stats?.postsThisWeek || 0}</p>
               </div>
-              <div className="bg-gray-100 p-3 rounded-full">
-                <NotebookPen className="w-5 h-5 text-gray-600" />
+              <div className="bg-amber-100 p-3 rounded-full">
+                <NotebookPen className="w-5 h-5 text-amber-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-white/80 backdrop-blur-sm border-amber-200/50 shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Connected Platforms</p>
-                <p className="text-2xl font-bold text-gray-900">{stats?.connectedPlatforms || 0}</p>
+                <p className="text-sm text-amber-700">Connected Platforms</p>
+                <p className="text-2xl font-bold text-amber-900">{stats?.connectedPlatforms || 0}</p>
               </div>
-              <div className="bg-gray-100 p-3 rounded-full">
-                <Link className="w-5 h-5 text-gray-600" />
+              <div className="bg-amber-100 p-3 rounded-full">
+                <Link className="w-5 h-5 text-amber-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-white/80 backdrop-blur-sm border-amber-200/50 shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Scheduled Posts</p>
-                <p className="text-2xl font-bold text-gray-900">{stats?.scheduledPosts || 0}</p>
+                <p className="text-sm text-amber-700">Scheduled Posts</p>
+                <p className="text-2xl font-bold text-amber-900">{stats?.scheduledPosts || 0}</p>
               </div>
-              <div className="bg-gray-100 p-3 rounded-full">
-                <Calendar className="w-5 h-5 text-gray-600" />
+              <div className="bg-amber-100 p-3 rounded-full">
+                <Calendar className="w-5 h-5 text-amber-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-white/80 backdrop-blur-sm border-amber-200/50 shadow-sm">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Success Rate</p>
-                <p className="text-2xl font-bold text-gray-900">{stats?.successRate || "0%"}</p>
+                <p className="text-sm text-amber-700">Success Rate</p>
+                <p className="text-2xl font-bold text-amber-900">{stats?.successRate || "0%"}</p>
               </div>
-              <div className="bg-gray-100 p-3 rounded-full">
-                <CheckCircle className="w-5 h-5 text-gray-600" />
+              <div className="bg-amber-100 p-3 rounded-full">
+                <CheckCircle className="w-5 h-5 text-amber-600" />
               </div>
             </div>
           </CardContent>
@@ -214,10 +214,10 @@ export default function Dashboard() {
       </div>
 
       {/* Platform Connections */}
-      <Card className="mb-8">
+      <Card className="mb-8 bg-white/80 backdrop-blur-sm border-amber-200/50 shadow-sm">
         <CardHeader>
-          <CardTitle>Platform Connections</CardTitle>
-          <p className="text-sm text-slate-500">Connect your social media accounts to start cross-posting</p>
+          <CardTitle className="text-amber-900">Platform Connections</CardTitle>
+          <p className="text-sm text-amber-700">Connect your social media accounts to start cross-posting</p>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -229,14 +229,14 @@ export default function Dashboard() {
       </Card>
 
       {/* Recent Posts */}
-      <Card>
+      <Card className="bg-white/80 backdrop-blur-sm border-amber-200/50 shadow-sm">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Recent Posts</CardTitle>
-              <p className="text-sm text-slate-500">Track your latest published content</p>
+              <CardTitle className="text-amber-900">Recent Posts</CardTitle>
+              <p className="text-sm text-amber-700">Track your latest published content</p>
             </div>
-            <Button variant="ghost" size="sm" className="text-indigo-600 hover:text-indigo-800">
+            <Button variant="ghost" size="sm" className="text-amber-600 hover:text-amber-800">
               View All
             </Button>
           </div>
@@ -248,8 +248,8 @@ export default function Dashboard() {
             ))}
             {(!posts || posts.length === 0) && (
               <div className="text-center py-8">
-                <p className="text-slate-500">No posts yet. Create your first post!</p>
-                <Button onClick={() => setShowComposer(true)} className="mt-4">
+                <p className="text-amber-700">No posts yet. Create your first post!</p>
+                <Button onClick={() => setShowComposer(true)} className="mt-4 bg-amber-600 hover:bg-amber-700 text-white">
                   <Plus className="w-4 h-4 mr-2" />
                   Create Post
                 </Button>
