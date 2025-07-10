@@ -18,16 +18,25 @@ Preferred communication style: Simple, everyday language.
   - Feature highlights with benefits
   - Pricing tiers (Free, Pro, Enterprise)
   - Call-to-action sections
+  - Removed "Watch Demo" and "Contact Sales" buttons as requested
 - **Design System**: Implemented Apple/Palantir-inspired minimalist design with:
   - Beige, white, grey, and black color palette
   - Clean typography and spacing
   - Subtle shadows and borders
   - Consistent component styling
+- **Stripe Subscription System**: Complete subscription flow implemented with:
+  - 7-day free trial for all plans
+  - Three pricing tiers: $7, $16, $25 monthly
+  - Subscription signup, cancellation, and reactivation
+  - Payment method updates via Stripe Customer Portal
+  - Database schema updated with Stripe fields
+  - Full billing management dashboard
 - **UI Improvements**: 
   - Removed "AI Assistant" text from composer
   - Functional notification bell with real-time updates
   - Updated routing to use landing page as home
-  - Enhanced sidebar with proper navigation
+  - Enhanced sidebar with billing section
+  - Registration flow now goes directly to subscription signup
 - **File Upload System**: Fully functional file upload with:
   - Multer for file handling
   - Sharp for image processing and optimization
@@ -37,6 +46,7 @@ Preferred communication style: Simple, everyday language.
   - PostgreSQL database provisioned and configured
   - Schema migration completed successfully
   - All tables created and indexed properly
+  - Added Stripe-related fields to users table
 
 ## System Architecture
 

@@ -131,16 +131,13 @@ export default function Landing() {
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
             Create once, publish everywhere. The most efficient way to manage your social media presence across all platforms.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+          <div className="flex justify-center">
             <Link href="/register">
               <Button size="lg" className="bg-amber-500 hover:bg-amber-600 text-white px-8 py-3 text-lg rounded-xl">
                 Start Free 7-Day Trial
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
-            <Button variant="outline" size="lg" className="px-8 py-3 text-lg border-amber-300 text-amber-700 hover:bg-amber-50 rounded-xl">
-              Watch Demo
-            </Button>
           </div>
         </div>
       </section>
@@ -265,16 +262,13 @@ export default function Landing() {
           <p className="text-amber-100 mb-8 max-w-2xl mx-auto">
             Join thousands of creators, businesses, and agencies who trust Post Media to manage their social presence.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+          <div className="flex justify-center">
             <Link href="/register">
               <Button size="lg" className="bg-white text-amber-600 hover:bg-amber-50 px-8 py-3 text-lg rounded-xl">
                 Start Free 7-Day Trial
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
-            <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-amber-600 px-8 py-3 text-lg rounded-xl">
-              Contact Sales
-            </Button>
           </div>
         </div>
       </section>

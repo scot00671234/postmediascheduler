@@ -17,6 +17,8 @@ export interface IStorage {
   createUser(insertUser: InsertUser): Promise<User>;
   getUserWithConnections(userId: number): Promise<UserWithConnections | undefined>;
   updateUser(id: number, updates: Partial<User>): Promise<void>;
+  updateUserStripeInfo(id: number, customerId: string, subscriptionId: string): Promise<void>;
+  updateStripeCustomerId(id: number, customerId: string): Promise<User>;
 
   // Platform methods
   getPlatforms(): Promise<Platform[]>;
@@ -100,6 +102,20 @@ export class DatabaseStorage implements IStorage {
       .update(users)
       .set(updates)
       .where(eq(users.id, id));
+  }
+
+  async updateUserStripeInfo(id: number, customerId: string, subscriptionId: string): Promise<void> {
+    await db.update(users).set({
+      stripeCustomerId: customerId,
+      stripeSubscriptionId: subscriptionId,
+    }).where(eq(users.id, id));
+  }
+
+  async updateStripeCustomerId(id: number, customerId: string): Promise<User> {
+    const [user] = await db.update(users).set({
+      stripeCustomerId: customerId,
+    }).where(eq(users.id, id)).returning();
+    return user;
   }
 
   // Platform methods

@@ -14,6 +14,8 @@ import Settings from "@/pages/settings";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
 import Landing from "@/pages/landing";
+import Subscribe from "@/pages/subscribe";
+import Billing from "@/pages/billing";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -28,10 +30,14 @@ function Router() {
           <Login />
         </AuthLayout>
       </Route>
-      <Route path="/register">
-        <AuthLayout>
-          <Register />
-        </AuthLayout>
+      <Route path="/register" component={Subscribe} />
+      
+      <Route path="/billing">
+        <ProtectedRoute>
+          <AppLayout>
+            <Billing />
+          </AppLayout>
+        </ProtectedRoute>
       </Route>
       
       {/* Protected app routes */}
