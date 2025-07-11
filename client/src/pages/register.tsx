@@ -25,7 +25,8 @@ export default function Register() {
         title: "Registration Successful",
         description: "Your account has been created!",
       });
-      setLocation("/");
+      // Force a page reload to ensure authentication state is updated
+      window.location.href = "/dashboard";
     },
     onError: (error) => {
       toast({
