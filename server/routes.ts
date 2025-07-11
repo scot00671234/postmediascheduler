@@ -27,6 +27,9 @@ import { pool } from "./db";
 
 // Middleware for authentication
 const requireAuth = (req: any, res: any, next: any) => {
+  console.log('Auth check - Session:', req.session?.userId ? 'exists' : 'missing');
+  console.log('Auth check - Session ID:', req.sessionID);
+  console.log('Auth check - Session data:', req.session);
   if (!req.session?.userId) {
     return res.status(401).json({ error: "Authentication required" });
   }
@@ -49,21 +52,13 @@ const initializePlatforms = async () => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Initialize PostgreSQL session store
-  const PgSession = ConnectPgSimple(session);
-  
-  // Initialize session middleware with PostgreSQL store
+  // Initialize session middleware with memory store for debugging
   app.use(session({
-    store: new PgSession({
-      pool: pool,
-      tableName: 'session',
-      createTableIfMissing: true,
-    }),
     secret: process.env.SESSION_SECRET || "your-secret-key",
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === "production",
+      secure: false, // Disable for development
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
       sameSite: 'lax',
@@ -137,12 +132,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Set session and save it explicitly
       req.session.userId = user.id;
+      console.log('Register - Setting session userId:', user.id, 'SessionID:', req.sessionID);
       
       req.session.save((err) => {
         if (err) {
-          console.error('Session save error:', err);
+          console.error('Register session save error:', err);
           return res.status(500).json({ error: "Session save failed" });
         }
+        console.log('Register session saved successfully - UserID:', user.id, 'SessionID:', req.sessionID);
         res.json({ user: { id: user.id, username: user.username, email: user.email } });
       });
     } catch (error) {
@@ -165,12 +162,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       req.session.userId = user.id;
+      console.log('Login - Setting session userId:', user.id, 'SessionID:', req.sessionID);
       
       req.session.save((err) => {
         if (err) {
-          console.error('Session save error:', err);
+          console.error('Login session save error:', err);
           return res.status(500).json({ error: "Session save failed" });
         }
+        console.log('Login session saved successfully - UserID:', user.id, 'SessionID:', req.sessionID);
         res.json({ user: { id: user.id, username: user.username, email: user.email } });
       });
     } catch (error) {
