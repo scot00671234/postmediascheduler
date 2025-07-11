@@ -19,12 +19,12 @@ export class OAuthService {
   }
 
   private initializeConfigs() {
-    // Twitter OAuth 2.0 configuration
+    // Twitter OAuth 2.0 configuration (ensure your Twitter app supports OAuth 2.0)
     this.configs.set("twitter", {
       clientId: process.env.TWITTER_CLIENT_ID || "",
       clientSecret: process.env.TWITTER_CLIENT_SECRET || "",
       redirectUri: `${this.getBaseUrl()}/api/oauth/callback/twitter`,
-      scopes: ["tweet.read", "tweet.write", "users.read"],
+      scopes: ["tweet.read", "tweet.write", "users.read", "offline.access"],
       authUrl: "https://twitter.com/i/oauth2/authorize",
       tokenUrl: "https://api.twitter.com/2/oauth2/token",
     });
