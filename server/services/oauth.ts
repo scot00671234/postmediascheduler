@@ -24,7 +24,7 @@ export class OAuthService {
       clientId: process.env.TWITTER_CLIENT_ID || "",
       clientSecret: process.env.TWITTER_CLIENT_SECRET || "",
       redirectUri: `${this.getBaseUrl()}/api/oauth/callback/twitter`,
-      scopes: ["tweet.read", "tweet.write", "users.read", "offline.access"],
+      scopes: ["tweet.read", "tweet.write", "users.read"],
       authUrl: "https://twitter.com/i/oauth2/authorize",
       tokenUrl: "https://api.twitter.com/2/oauth2/token",
     });
@@ -60,7 +60,13 @@ export class OAuthService {
       state,
     });
 
-    return `${config.authUrl}?${params.toString()}`;
+    const authUrl = `${config.authUrl}?${params.toString()}`;
+    console.log(`Generated OAuth URL for ${platform}:`, authUrl);
+    console.log(`Client ID: ${config.clientId.substring(0, 10)}...`);
+    console.log(`Redirect URI: ${config.redirectUri}`);
+    console.log(`Scopes: ${config.scopes.join(" ")}`);
+    
+    return authUrl;
   }
 
   public async handleCallback(platform: string, code: string, state: string): Promise<{
