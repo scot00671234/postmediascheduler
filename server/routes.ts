@@ -56,12 +56,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use(session({
     secret: process.env.SESSION_SECRET || "your-secret-key",
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true, // Changed to true for debugging
+    name: 'sessionId', // Explicit session name
     cookie: {
       secure: false, // Disable for development
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
       sameSite: 'lax',
+      domain: undefined, // Let browser handle domain
     },
   }));
 
