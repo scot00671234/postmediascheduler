@@ -1,5 +1,6 @@
 import { storage } from "../storage";
 import { platformService } from "./platforms";
+import { rateLimiter } from "./rate-limiter";
 import { nanoid } from "nanoid";
 import { JobQueue, PostWithPlatforms } from "@shared/schema";
 
@@ -25,6 +26,14 @@ export class QueueService {
 
   async addPublishJob(payload: JobPayload, scheduledAt?: Date): Promise<string> {
     const jobId = nanoid();
+    
+    // Check rate limits for each platform
+    for (const platform of payload.platforms) {
+      const rateCheck = await rateLimiter.checkRateLimit(platform, payload.userId);
+      if (!rateCheck.allowed) {
+        throw new Error(`Rate limit exceeded for ${platform}. Try again in ${Math.ceil((rateCheck.resetTime - Date.now()) / 1000 / 60)} minutes.`);
+      }
+    }
     
     await storage.createJob({
       jobId,
