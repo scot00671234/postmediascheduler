@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { toast } from "@/hooks/use-toast";
 
@@ -12,6 +12,7 @@ export default function Login() {
   const [, setLocation] = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const queryClient = useQueryClient();
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: { email: string; password: string }) => {
@@ -23,8 +24,9 @@ export default function Login() {
         title: "Login Successful",
         description: "Welcome back!",
       });
-      // Force a page reload to ensure authentication state is updated
-      window.location.href = "/dashboard";
+      // Invalidate auth queries and redirect
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+      setLocation("/dashboard");
     },
     onError: (error) => {
       toast({

@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { toast } from "@/hooks/use-toast";
 
@@ -14,6 +14,7 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const queryClient = useQueryClient();
 
   const registerMutation = useMutation({
     mutationFn: async (userData: { username: string; email: string; password: string }) => {
@@ -25,8 +26,9 @@ export default function Register() {
         title: "Registration Successful",
         description: "Your account has been created!",
       });
-      // Force a page reload to ensure authentication state is updated
-      window.location.href = "/dashboard";
+      // Invalidate auth queries and redirect
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+      setLocation("/dashboard");
     },
     onError: (error) => {
       toast({

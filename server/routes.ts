@@ -13,6 +13,7 @@ import { db } from "./db";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import session from "express-session";
+import ConnectPgSimple from "connect-pg-simple";
 import { nanoid } from "nanoid";
 import multer from "multer";
 import path from "path";
@@ -21,6 +22,7 @@ import { v4 as uuidv4 } from "uuid";
 import sharp from "sharp";
 import mime from "mime-types";
 import Stripe from "stripe";
+import { pool } from "./db";
 
 
 // Middleware for authentication
@@ -47,8 +49,16 @@ const initializePlatforms = async () => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Initialize session middleware
+  // Initialize PostgreSQL session store
+  const PgSession = ConnectPgSimple(session);
+  
+  // Initialize session middleware with PostgreSQL store
   app.use(session({
+    store: new PgSession({
+      pool: pool,
+      tableName: 'session',
+      createTableIfMissing: true,
+    }),
     secret: process.env.SESSION_SECRET || "your-secret-key",
     resave: false,
     saveUninitialized: false,
@@ -56,6 +66,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       secure: process.env.NODE_ENV === "production",
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      sameSite: 'lax',
     },
   }));
 
@@ -124,10 +135,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         password: hashedPassword,
       });
 
-      // Set session
+      // Set session and save it explicitly
       req.session.userId = user.id;
       
-      res.json({ user: { id: user.id, username: user.username, email: user.email } });
+      req.session.save((err) => {
+        if (err) {
+          console.error('Session save error:', err);
+          return res.status(500).json({ error: "Session save failed" });
+        }
+        res.json({ user: { id: user.id, username: user.username, email: user.email } });
+      });
     } catch (error) {
       res.status(400).json({ error: error instanceof Error ? error.message : "Registration failed" });
     }
@@ -148,7 +165,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       req.session.userId = user.id;
-      res.json({ user: { id: user.id, username: user.username, email: user.email } });
+      
+      req.session.save((err) => {
+        if (err) {
+          console.error('Session save error:', err);
+          return res.status(500).json({ error: "Session save failed" });
+        }
+        res.json({ user: { id: user.id, username: user.username, email: user.email } });
+      });
     } catch (error) {
       res.status(400).json({ error: error instanceof Error ? error.message : "Login failed" });
     }
