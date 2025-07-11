@@ -24,9 +24,12 @@ export default function Login() {
         title: "Login Successful",
         description: "Welcome back!",
       });
-      // Invalidate auth queries and redirect
+      // Invalidate auth queries and redirect with slight delay
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
-      setLocation("/dashboard");
+      // Wait for cache invalidation then redirect
+      setTimeout(() => {
+        setLocation("/dashboard");
+      }, 100);
     },
     onError: (error) => {
       toast({

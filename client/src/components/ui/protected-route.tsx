@@ -12,6 +12,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { data: user, isLoading, error } = useQuery({
     queryKey: ["/api/auth/me"],
     retry: false,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
