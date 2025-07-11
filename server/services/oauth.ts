@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { storage } from "../storage";
 import { nanoid } from "nanoid";
+import { createHash, randomBytes } from "crypto";
 
 export interface OAuthConfig {
   clientId: string;
@@ -13,6 +14,7 @@ export interface OAuthConfig {
 
 export class OAuthService {
   private configs: Map<string, OAuthConfig> = new Map();
+  private codeVerifiers: Map<string, string> = new Map(); // Temporary storage for code verifiers
 
   constructor() {
     this.initializeConfigs();
@@ -52,12 +54,22 @@ export class OAuthService {
     }
 
     const state = this.generateState(userId, platform);
+    
+    // Generate PKCE parameters for Twitter OAuth 2.0
+    const codeVerifier = this.generateCodeVerifier();
+    const codeChallenge = this.generateCodeChallenge(codeVerifier);
+    
+    // Store code verifier temporarily (in a real app, use Redis or similar)
+    this.storeCodeVerifier(userId, platform, codeVerifier);
+    
     const params = new URLSearchParams({
       client_id: config.clientId,
       redirect_uri: config.redirectUri,
       response_type: "code",
       scope: config.scopes.join(" "),
       state,
+      code_challenge: codeChallenge,
+      code_challenge_method: "S256",
     });
 
     const authUrl = `${config.authUrl}?${params.toString()}`;
@@ -65,6 +77,7 @@ export class OAuthService {
     console.log(`Client ID: ${config.clientId.substring(0, 10)}...`);
     console.log(`Redirect URI: ${config.redirectUri}`);
     console.log(`Scopes: ${config.scopes.join(" ")}`);
+    console.log(`Code Challenge: ${codeChallenge.substring(0, 10)}...`);
     
     return authUrl;
   }
@@ -84,8 +97,11 @@ export class OAuthService {
     // Verify state and extract user ID
     const { userId } = this.verifyState(state, platform);
 
+    // Get stored code verifier for PKCE
+    const codeVerifier = this.getCodeVerifier(userId, platform);
+    
     // Exchange code for tokens
-    const tokenResponse = await this.exchangeCodeForTokens(config, code);
+    const tokenResponse = await this.exchangeCodeForTokens(config, code, codeVerifier);
     const userInfo = await this.getUserInfo(platform, tokenResponse.access_token);
 
     return {
@@ -130,7 +146,7 @@ export class OAuthService {
     }
   }
 
-  private async exchangeCodeForTokens(config: OAuthConfig, code: string): Promise<{
+  private async exchangeCodeForTokens(config: OAuthConfig, code: string, codeVerifier?: string): Promise<{
     access_token: string;
     refresh_token?: string;
     expires_in?: number;
@@ -142,6 +158,11 @@ export class OAuthService {
       redirect_uri: config.redirectUri,
       code,
     });
+
+    // Add code verifier for PKCE (Twitter OAuth 2.0)
+    if (codeVerifier) {
+      body.append("code_verifier", codeVerifier);
+    }
 
     const response = await fetch(config.tokenUrl, {
       method: "POST",
@@ -231,6 +252,37 @@ export class OAuthService {
         ? new Date(Date.now() + data.expires_in * 1000)
         : undefined,
     };
+  }
+
+  // PKCE helper methods
+  private generateCodeVerifier(): string {
+    return randomBytes(32).toString('base64url');
+  }
+
+  private generateCodeChallenge(codeVerifier: string): string {
+    return createHash('sha256').update(codeVerifier).digest('base64url');
+  }
+
+  private storeCodeVerifier(userId: number, platform: string, codeVerifier: string): void {
+    const key = `${userId}:${platform}`;
+    this.codeVerifiers.set(key, codeVerifier);
+    
+    // Clean up after 10 minutes
+    setTimeout(() => {
+      this.codeVerifiers.delete(key);
+    }, 10 * 60 * 1000);
+  }
+
+  private getCodeVerifier(userId: number, platform: string): string {
+    const key = `${userId}:${platform}`;
+    const codeVerifier = this.codeVerifiers.get(key);
+    if (!codeVerifier) {
+      throw new Error('Code verifier not found or expired');
+    }
+    
+    // Clean up after use
+    this.codeVerifiers.delete(key);
+    return codeVerifier;
   }
 }
 
