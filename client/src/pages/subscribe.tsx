@@ -90,50 +90,20 @@ export default function Subscribe() {
   });
 
   const plans = {
-    starter: {
-      name: "Starter",
+    creator: {
+      name: "Creator",
       price: "$7",
       amount: 700, // $7 in cents
       features: [
-        "5 connected social accounts",
-        "Multiple accounts per platform",
+        "Connect X and LinkedIn accounts",
         "Unlimited posts",
         "Schedule posts",
-        "Carousel posts",
+        "Content templates",
+        "Hashtag suggestions",
+        "Basic analytics",
         "250MB file uploads"
-      ]
-    },
-    creator: {
-      name: "Creator",
-      price: "$16",
-      amount: 1600, // $16 in cents
-      features: [
-        "15 connected social accounts",
-        "Multiple accounts per platform",
-        "Unlimited posts",
-        "Schedule posts",
-        "Carousel posts",
-        "500MB file uploads",
-        "Bulk video scheduling",
-        "Content studio access"
       ],
       popular: true
-    },
-    pro: {
-      name: "Pro",
-      price: "$25",
-      amount: 2500, // $25 in cents
-      features: [
-        "Unlimited connected accounts",
-        "Multiple accounts per platform",
-        "Unlimited posts",
-        "Schedule posts",
-        "Carousel posts",
-        "500MB file uploads",
-        "Bulk video scheduling",
-        "Content studio access",
-        "Viral growth consulting"
-      ]
     }
   };
 

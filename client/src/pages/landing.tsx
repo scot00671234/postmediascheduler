@@ -24,8 +24,8 @@ export default function Landing() {
   const features = [
     {
       icon: <Users className="w-6 h-6" />,
-      title: "Multi-Platform Publishing",
-      description: "Post to all major social media platforms from one place"
+      title: "X & LinkedIn Publishing",
+      description: "Post to X and LinkedIn simultaneously from one place"
     },
     {
       icon: <Clock className="w-6 h-6" />,
@@ -34,8 +34,8 @@ export default function Landing() {
     },
     {
       icon: <Shield className="w-6 h-6" />,
-      title: "Secure & Private",
-      description: "Your data is encrypted and never shared"
+      title: "Creator Tools",
+      description: "Content templates, hashtag suggestions, and analytics"
     },
     {
       icon: <Zap className="w-6 h-6" />,
@@ -45,64 +45,28 @@ export default function Landing() {
   ];
 
   const platforms = [
-    { name: "Twitter", icon: "🐦", color: "bg-blue-500" },
-    { name: "Instagram", icon: "📷", color: "bg-pink-500" },
-    { name: "LinkedIn", icon: "💼", color: "bg-blue-700" },
-    { name: "Facebook", icon: "📘", color: "bg-blue-600" },
-    { name: "TikTok", icon: "🎵", color: "bg-black" },
-    { name: "YouTube", icon: "📺", color: "bg-red-500" },
-    { name: "Bluesky", icon: "☁️", color: "bg-sky-500" },
-    { name: "Threads", icon: "🧵", color: "bg-gray-900" },
-    { name: "Pinterest", icon: "📌", color: "bg-red-600" }
+    { name: "X", icon: "🐦", color: "bg-blue-500" },
+    { name: "LinkedIn", icon: "💼", color: "bg-blue-700" }
   ];
 
   const pricingPlans = [
     {
-      name: "Starter",
-      subtitle: "Best for beginner creators",
+      name: "Creator",
+      subtitle: "Perfect for content creators",
       price: "$7",
       period: "month",
       features: [
-        "5 connected social accounts",
-        "Multiple accounts per platform",
+        "Connect X and LinkedIn accounts",
         "Unlimited posts",
         "Schedule posts",
+        "Content templates",
+        "Hashtag suggestions",
+        "Basic analytics",
         "250MB file uploads"
-      ],
-      cta: "Start Free 7-Day Trial",
-      popular: false
-    },
-    {
-      name: "Creator",
-      subtitle: "Best for growing creators",
-      price: "$16",
-      period: "month",
-      features: [
-        "15 connected social accounts",
-        "Multiple accounts per platform",
-        "Unlimited posts",
-        "Schedule posts",
-        "500MB file uploads"
       ],
       cta: "Start Free 7-Day Trial",
       popular: true,
       badge: "Most popular"
-    },
-    {
-      name: "Pro",
-      subtitle: "Best for scaling brands",
-      price: "$25",
-      period: "month",
-      features: [
-        "Unlimited connected accounts",
-        "Multiple accounts per platform",
-        "Unlimited posts",
-        "Schedule posts",
-        "500MB file uploads"
-      ],
-      cta: "Start Free 7-Day Trial",
-      popular: false,
-      badge: "Best deal"
     }
   ];
 
@@ -154,12 +118,12 @@ export default function Landing() {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Connect All Your Platforms
+            Connect X & LinkedIn
           </h2>
           <p className="text-gray-600 mb-12 max-w-2xl mx-auto">
-            Seamlessly integrate with all major social media platforms. No more switching between apps.
+            The two most important platforms for creators and professionals. Post once, reach everywhere.
           </p>
-          <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-2 gap-12 max-w-md mx-auto">
             {platforms.map((platform) => (
               <div key={platform.name} className="flex flex-col items-center space-y-3">
                 <div className={`w-16 h-16 rounded-2xl ${platform.color} flex items-center justify-center text-white text-2xl shadow-lg`}>
@@ -214,7 +178,7 @@ export default function Landing() {
               Choose the plan that fits your needs. No hidden fees, cancel anytime.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 max-w-md mx-auto">
             {pricingPlans.map((plan, index) => (
               <Card key={index} className={`relative bg-white border-2 ${plan.popular ? 'border-amber-400 shadow-xl' : 'border-amber-200'} rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300`}>
                 {plan.badge && (

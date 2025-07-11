@@ -36,8 +36,8 @@ Preferred communication style: Simple, everyday language.
   - Subtle shadows and borders
   - Consistent component styling
 - **Stripe Subscription System**: Complete subscription flow implemented with:
-  - 7-day free trial for all plans
-  - Three pricing tiers: $7, $16, $25 monthly
+  - 7-day free trial for Creator plan
+  - Single pricing tier: $7 monthly Creator plan
   - Subscription signup, cancellation, and reactivation
   - Payment method updates via Stripe Customer Portal
   - Database schema updated with Stripe fields

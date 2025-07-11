@@ -591,9 +591,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create or get price based on plan
       let priceId: string;
       const planAmounts = {
-        'Pro': 700, // $7.00
-        'Team': 1600, // $16.00  
-        'Enterprise': 2500 // $25.00
+        'Creator': 700, // $7.00
       };
 
       const planAmount = planAmounts[planName as keyof typeof planAmounts];

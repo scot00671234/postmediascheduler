@@ -20,45 +20,18 @@ interface PricingPlan {
 
 const pricingPlans: PricingPlan[] = [
   {
-    name: "Pro",
+    name: "Creator",
     price: 7,
-    description: "Perfect for individuals and content creators",
-    features: [
-      "Connect up to 5 social platforms",
-      "Schedule unlimited posts",
-      "Basic analytics",
-      "Email support",
-      "Media library up to 1GB"
-    ]
-  },
-  {
-    name: "Team",
-    price: 16,
-    description: "Great for small teams and agencies",
+    description: "Perfect for content creators and professionals",
     recommended: true,
     features: [
-      "Connect up to 15 social platforms",
-      "Schedule unlimited posts",
-      "Advanced analytics & insights",
-      "Priority email support",
-      "Media library up to 10GB",
-      "Team collaboration tools",
-      "Custom post templates"
-    ]
-  },
-  {
-    name: "Enterprise",
-    price: 25,
-    description: "For large organizations and power users",
-    features: [
-      "Unlimited social platform connections",
-      "Schedule unlimited posts",
-      "Advanced analytics & reporting",
-      "24/7 priority support",
-      "Unlimited media library",
-      "Advanced team management",
-      "API access",
-      "White-label options"
+      "Connect X and LinkedIn accounts",
+      "Unlimited posts",
+      "Schedule posts",
+      "Content templates",
+      "Hashtag suggestions",
+      "Basic analytics",
+      "250MB file uploads"
     ]
   }
 ];
@@ -154,7 +127,7 @@ export default function SubscriptionSetup() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 max-w-md mx-auto">
           {pricingPlans.map((plan) => (
             <Card
               key={plan.name}
