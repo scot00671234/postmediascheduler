@@ -52,18 +52,17 @@ const initializePlatforms = async () => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Initialize session middleware with memory store for debugging
+  // Initialize session middleware - simplified for development
   app.use(session({
     secret: process.env.SESSION_SECRET || "your-secret-key",
-    resave: false,
-    saveUninitialized: true, // Changed to true for debugging
-    name: 'sessionId', // Explicit session name
+    resave: true, // Force session save
+    saveUninitialized: true,
+    name: 'connect.sid', // Default express-session name
     cookie: {
-      secure: false, // Disable for development
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      sameSite: 'lax',
-      domain: undefined, // Let browser handle domain
+      secure: false,
+      httpOnly: false, // Allow JS access for debugging
+      maxAge: 24 * 60 * 60 * 1000,
+      sameSite: false, // Most permissive
     },
   }));
 
