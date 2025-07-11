@@ -34,15 +34,8 @@ const requireAuth = (req: any, res: any, next: any) => {
 // Initialize default platforms
 const initializePlatforms = async () => {
   const defaultPlatforms = [
-    { name: "twitter", displayName: "Twitter", icon: "fab fa-twitter", color: "#1DA1F2", isActive: true },
-    { name: "instagram", displayName: "Instagram", icon: "fab fa-instagram", color: "#E4405F", isActive: true },
+    { name: "twitter", displayName: "Twitter/X", icon: "fab fa-twitter", color: "#1DA1F2", isActive: true },
     { name: "linkedin", displayName: "LinkedIn", icon: "fab fa-linkedin", color: "#0077B5", isActive: true },
-    { name: "facebook", displayName: "Facebook", icon: "fab fa-facebook", color: "#1877F2", isActive: true },
-    { name: "tiktok", displayName: "TikTok", icon: "fab fa-tiktok", color: "#000000", isActive: true },
-    { name: "youtube", displayName: "YouTube", icon: "fab fa-youtube", color: "#FF0000", isActive: true },
-    { name: "bluesky", displayName: "Bluesky", icon: "fas fa-cloud", color: "#00A8E8", isActive: true },
-    { name: "threads", displayName: "Threads", icon: "fab fa-threads", color: "#000000", isActive: true },
-    { name: "pinterest", displayName: "Pinterest", icon: "fab fa-pinterest", color: "#E60023", isActive: true },
   ];
 
   for (const platform of defaultPlatforms) {

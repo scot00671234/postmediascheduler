@@ -68,14 +68,7 @@ export function PlatformCard({ platform }: PlatformCardProps) {
   const getIconComponent = () => {
     const iconMap: Record<string, string> = {
       twitter: "🐦",
-      instagram: "📷",
       linkedin: "💼",
-      facebook: "📘",
-      tiktok: "🎵",
-      youtube: "📺",
-      bluesky: "☁️",
-      threads: "🧵",
-      pinterest: "📌",
     };
     return iconMap[platform.name] || "🔗";
   };

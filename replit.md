@@ -11,6 +11,11 @@ Preferred communication style: Simple, everyday language.
 ## Recent Changes
 
 ### January 2025
+- **Platform Simplification**: Removed all social media platforms except Twitter/X and LinkedIn
+  - Simplified OAuth service to focus on professional platforms
+  - Removed Instagram, Facebook, TikTok, YouTube, Bluesky, Threads, Pinterest
+  - Updated platform cards and publishers to only support Twitter and LinkedIn
+  - Streamlined for faster MVP development and easier OAuth setup
 - **Project Migration**: Successfully migrated from Replit Agent to Replit environment with:
   - PostgreSQL database setup and schema migration
   - Environment variables configuration (SESSION_SECRET, DATABASE_URL)
