@@ -156,12 +156,17 @@ export default function Billing() {
           <div className="text-center py-12 glass p-8 rounded-2xl animate-slide-in">
             <h1 className="text-2xl font-bold gradient-text mb-4">Billing Setup Required</h1>
             <p className="text-muted-foreground mb-6">
-              Billing features are not yet configured. The Stripe secret key is needed to manage subscriptions and cancellations.
+              Billing features are not yet configured. Please configure your Stripe keys in the environment variables.
             </p>
             <div className="glass p-4 text-left max-w-md mx-auto">
               <p className="text-sm text-foreground">
-                <strong>Note:</strong> You provided the restricted publishable key, but the secret key (starting with "sk_") is required for subscription management.
+                <strong>Required Environment Variables:</strong>
               </p>
+              <ul className="text-sm text-muted-foreground mt-2 space-y-1">
+                <li>• STRIPE_SECRET_KEY (server-side)</li>
+                <li>• VITE_STRIPE_PUBLIC_KEY (client-side)</li>
+                <li>• STRIPE_WEBHOOK_SECRET (optional)</li>
+              </ul>
             </div>
           </div>
         </div>

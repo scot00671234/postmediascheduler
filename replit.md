@@ -11,6 +11,12 @@ Preferred communication style: Simple, everyday language.
 ## Recent Changes
 
 ### January 2025
+- **Stripe Configuration**: Removed hardcoded Stripe keys and updated to use environment variables
+  - Updated subscribe.tsx to use VITE_STRIPE_PUBLIC_KEY environment variable
+  - Updated billing.tsx to show proper setup instructions
+  - Added placeholder keys in .env file for development
+  - Created STRIPE_SETUP_GUIDE.md for Railway deployment instructions
+  - All Stripe integration now uses environment variables for security
 - **Platform Simplification**: Removed all social media platforms except Twitter/X and LinkedIn
   - Simplified OAuth service to focus on professional platforms
   - Removed Instagram, Facebook, TikTok, YouTube, Bluesky, Threads, Pinterest

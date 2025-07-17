@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 
 // Load Stripe
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || "pk_live_51RfWPeP0VGlWmmEyMfrCtw6iAwPV1MxxHD0bvd6CeSYSDYWlvMzyQAetgawX4g3guxgMiQRBmL1oFhYqxeLxayut00A6nfRavo");
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || "");
 
 interface SubscriptionFormProps {
   plan: string;
