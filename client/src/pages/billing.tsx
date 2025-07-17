@@ -151,15 +151,15 @@ export default function Billing() {
 
   if (error && error.message.includes('Stripe not configured')) {
     return (
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-6 animate-fade-in">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center py-12">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Billing Setup Required</h1>
-            <p className="text-gray-600 mb-6">
+          <div className="text-center py-12 glass p-8 rounded-2xl animate-slide-in">
+            <h1 className="text-2xl font-bold gradient-text mb-4">Billing Setup Required</h1>
+            <p className="text-muted-foreground mb-6">
               Billing features are not yet configured. The Stripe secret key is needed to manage subscriptions and cancellations.
             </p>
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-left max-w-md mx-auto">
-              <p className="text-sm text-amber-800">
+            <div className="glass p-4 text-left max-w-md mx-auto">
+              <p className="text-sm text-foreground">
                 <strong>Note:</strong> You provided the restricted publishable key, but the secret key (starting with "sk_") is required for subscription management.
               </p>
             </div>

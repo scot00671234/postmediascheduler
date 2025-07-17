@@ -18,11 +18,11 @@ export default function Settings() {
   });
 
   return (
-    <div className="flex-1 overflow-y-auto p-6">
+    <div className="flex-1 overflow-y-auto p-6 animate-fade-in">
       <div className="max-w-4xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-slate-900">Settings</h1>
-          <p className="text-sm text-slate-500">
+        <div className="mb-8 glass p-6 rounded-2xl animate-slide-in">
+          <h1 className="text-2xl font-bold gradient-text">Settings</h1>
+          <p className="text-sm text-muted-foreground">
             Manage your account preferences and application settings
           </p>
         </div>
@@ -57,7 +57,7 @@ export default function Settings() {
                 </div>
               </div>
 
-              <Button className="bg-indigo-600 hover:bg-indigo-700">
+              <Button className="animate-glow">
                 <Save className="w-4 h-4 mr-2" />
                 Save Profile
               </Button>

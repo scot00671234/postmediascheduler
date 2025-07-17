@@ -164,11 +164,11 @@ export default function Composer() {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-6">
+    <div className="flex-1 overflow-y-auto p-6 animate-fade-in">
       <div className="max-w-4xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Compose Post</h1>
-          <p className="text-sm text-gray-500">Create and schedule content for multiple platforms</p>
+        <div className="mb-8 glass p-6 rounded-2xl animate-slide-in">
+          <h1 className="text-2xl font-bold gradient-text">Compose Post</h1>
+          <p className="text-sm text-muted-foreground">Create and schedule content for multiple platforms</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

@@ -144,29 +144,29 @@ export default function Landing() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-amber-25"  style={{ backgroundColor: 'rgb(255, 251, 235)' }}>
+      <section className="py-20">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-16 glass p-8 rounded-3xl mx-4 animate-slide-in">
+            <h2 className="text-3xl font-bold gradient-text mb-4">
               Everything You Need
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <p className="text-muted-foreground max-w-2xl mx-auto">
               Powerful features designed to simplify your social media workflow and maximize your reach.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
-              <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-shadow bg-white rounded-2xl">
+              <Card key={index} className="animate-slide-in" style={{ animationDelay: `${index * 100}ms` }}>
                 <CardHeader className="pb-4">
-                  <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600 mb-4">
+                  <div className="w-12 h-12 gradient-bg rounded-xl flex items-center justify-center text-white mb-4 animate-float">
                     {feature.icon}
                   </div>
-                  <CardTitle className="text-lg font-semibold text-gray-900">
+                  <CardTitle className="text-lg font-semibold gradient-text">
                     {feature.title}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600">{feature.description}</p>
+                  <p className="text-muted-foreground">{feature.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -175,32 +175,32 @@ export default function Landing() {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-16 glass p-8 rounded-3xl mx-4 animate-slide-in">
+            <h2 className="text-3xl font-bold gradient-text mb-4">
               Simple, Transparent Pricing
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <p className="text-muted-foreground max-w-2xl mx-auto">
               Choose the plan that fits your needs. No hidden fees, cancel anytime.
             </p>
           </div>
           <div className="grid grid-cols-1 max-w-md mx-auto">
             {pricingPlans.map((plan, index) => (
-              <Card key={index} className={`relative bg-white border-2 ${plan.popular ? 'border-amber-400 shadow-xl' : 'border-amber-200'} rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300`}>
+              <Card key={index} className={`relative ${plan.popular ? 'ring-2 ring-orange-400/50 shadow-xl' : ''} animate-slide-in`}>
                 {plan.badge && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <Badge className={`${plan.popular ? 'bg-amber-500 text-white' : 'bg-amber-100 text-amber-800'} px-4 py-1`}>
+                    <Badge className="gradient-bg text-white px-4 py-1 animate-glow">
                       {plan.badge}
                     </Badge>
                   </div>
                 )}
                 <CardHeader className="text-center pb-4 pt-8">
-                  <CardTitle className="text-2xl font-bold text-gray-900">{plan.name}</CardTitle>
-                  <p className="text-sm text-gray-600 mt-2">{plan.subtitle}</p>
+                  <CardTitle className="text-2xl font-bold gradient-text">{plan.name}</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-2">{plan.subtitle}</p>
                   <div className="mt-6">
-                    <span className="text-5xl font-bold text-gray-900">{plan.price}</span>
-                    <span className="text-gray-500 text-lg">/{plan.period}</span>
+                    <span className="text-5xl font-bold gradient-text">{plan.price}</span>
+                    <span className="text-muted-foreground text-lg">/{plan.period}</span>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-6 px-6 pb-8">
@@ -208,20 +208,20 @@ export default function Landing() {
                     {plan.features.map((feature, featureIndex) => (
                       <li key={featureIndex} className="flex items-start space-x-3">
                         <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-700 text-sm">{feature}</span>
+                        <span className="text-foreground text-sm">{feature}</span>
                       </li>
                     ))}
                   </ul>
                   <div className="pt-4">
                     <Link href="/register">
                       <Button 
-                        className={`w-full ${plan.popular ? 'bg-amber-500 hover:bg-amber-600 text-white' : 'bg-amber-100 hover:bg-amber-200 text-amber-800'} rounded-xl py-3 text-base font-semibold`}
+                        className="w-full animate-glow"
                         size="lg"
                       >
                         {plan.cta}
                       </Button>
                     </Link>
-                    <p className="text-xs text-gray-500 text-center mt-3">
+                    <p className="text-xs text-muted-foreground text-center mt-3">
                       $0.00 due today, cancel anytime
                     </p>
                   </div>
@@ -233,21 +233,23 @@ export default function Landing() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-amber-600 text-white">
+      <section className="py-20 gradient-bg">
         <div className="max-w-7xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold mb-4">
-            Ready to Transform Your Social Media?
-          </h2>
-          <p className="text-amber-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of creators, businesses, and agencies who trust Post Media to manage their social presence.
-          </p>
-          <div className="flex justify-center">
-            <Link href="/register">
-              <Button size="lg" className="bg-white text-amber-600 hover:bg-amber-50 px-8 py-3 text-lg rounded-xl">
-                Start Free 7-Day Trial
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            </Link>
+          <div className="glass p-12 rounded-3xl mx-4 animate-slide-in">
+            <h2 className="text-3xl font-bold mb-4 text-white">
+              Ready to Transform Your Social Media?
+            </h2>
+            <p className="text-white/80 mb-8 max-w-2xl mx-auto">
+              Join thousands of creators, businesses, and agencies who trust CrossPost Pro to manage their social presence.
+            </p>
+            <div className="flex justify-center">
+              <Link href="/register">
+                <Button size="lg" className="bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur-sm px-8 py-3 text-lg rounded-xl animate-glow">
+                  Start Free 7-Day Trial
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>

@@ -12,6 +12,10 @@ import Register from "@/pages/register";
 import Subscribe from "@/pages/subscribe";
 import Dashboard from "@/pages/dashboard";
 import Connections from "@/pages/connections";
+import Composer from "@/pages/composer";
+import Scheduled from "@/pages/scheduled";
+import Billing from "@/pages/billing";
+import Settings from "@/pages/settings";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -45,6 +49,34 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <Connections />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/compose">
+        <ProtectedRoute>
+          <AppLayout>
+            <Composer />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/scheduled">
+        <ProtectedRoute>
+          <AppLayout>
+            <Scheduled />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/billing">
+        <ProtectedRoute>
+          <AppLayout>
+            <Billing />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/settings">
+        <ProtectedRoute>
+          <AppLayout>
+            <Settings />
           </AppLayout>
         </ProtectedRoute>
       </Route>

@@ -45,17 +45,17 @@ export default function Scheduled() {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto p-6">
+    <div className="flex-1 overflow-y-auto p-6 animate-fade-in">
       <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-8 glass p-6 rounded-2xl animate-slide-in">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Scheduled Posts</h1>
-            <p className="text-sm text-slate-500">
+            <h1 className="text-2xl font-bold gradient-text">Scheduled Posts</h1>
+            <p className="text-sm text-muted-foreground">
               Manage your scheduled content across all platforms
             </p>
           </div>
           <div className="flex items-center space-x-2">
-            <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+            <Badge variant="outline" className="gradient-bg text-white border-white/30">
               <Calendar className="w-4 h-4 mr-1" />
               {scheduledPosts.length} Scheduled
             </Badge>
