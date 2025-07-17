@@ -5,7 +5,8 @@ import { oauthService } from "./services/oauth";
 import { queueService } from "./services/queue";
 import { schedulerService } from "./services/scheduler";
 import { platformService } from "./services/platforms";
-import { emailService } from "./services/email";
+import { emailService } from "./emailService";
+import { authService, requireAuth as authMiddleware, registerSchema, loginSchema, emailVerificationSchema, forgotPasswordSchema, resetPasswordSchema } from "./auth";
 import { z } from "zod";
 import { insertPostSchema, insertUserSchema, insertMediaFileSchema, users } from "@shared/schema";
 import express from "express";
@@ -25,7 +26,7 @@ import Stripe from "stripe";
 import { pool } from "./db";
 
 
-// Middleware for authentication
+// Middleware for authentication (legacy support)
 const requireAuth = (req: any, res: any, next: any) => {
   console.log('Auth check - Session:', req.session?.userId ? 'exists' : 'missing');
   console.log('Auth check - Session ID:', req.sessionID);
@@ -110,26 +111,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Serve uploaded files
   app.use('/uploads', express.static(uploadsDir));
 
-  // Auth routes
+  // Enhanced Auth routes
   app.post("/api/auth/register", async (req, res) => {
     try {
-      const { username, email, password } = insertUserSchema.parse(req.body);
-      
-      // Check if user already exists
-      const existingUser = await storage.getUserByEmail(email);
-      if (existingUser) {
-        return res.status(400).json({ error: "User already exists" });
-      }
-
-      // Hash password
-      const hashedPassword = await bcrypt.hash(password, 10);
-      
-      // Create user
-      const user = await storage.createUser({
-        username,
-        email,
-        password: hashedPassword,
-      });
+      const userData = registerSchema.parse(req.body);
+      const { user, token } = await authService.register(userData);
 
       // Set session and save it explicitly
       req.session.userId = user.id;
@@ -141,7 +127,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(500).json({ error: "Session save failed" });
         }
         console.log('Register session saved successfully - UserID:', user.id, 'SessionID:', req.sessionID);
-        res.json({ user: { id: user.id, username: user.username, email: user.email } });
+        res.json({ 
+          user: { 
+            id: user.id, 
+            username: user.username, 
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            isEmailVerified: user.isEmailVerified
+          },
+          emailVerificationRequired: !user.isEmailVerified
+        });
       });
     } catch (error) {
       res.status(400).json({ error: error instanceof Error ? error.message : "Registration failed" });
@@ -150,17 +146,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/auth/login", async (req, res) => {
     try {
-      const { email, password } = req.body;
-      
-      const user = await storage.getUserByEmail(email);
-      if (!user) {
-        return res.status(401).json({ error: "Invalid credentials" });
-      }
-
-      const isValid = await bcrypt.compare(password, user.password);
-      if (!isValid) {
-        return res.status(401).json({ error: "Invalid credentials" });
-      }
+      const credentials = loginSchema.parse(req.body);
+      const user = await authService.login(credentials);
 
       req.session.userId = user.id;
       console.log('Login - Setting session userId:', user.id, 'SessionID:', req.sessionID);
@@ -171,10 +158,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(500).json({ error: "Session save failed" });
         }
         console.log('Login session saved successfully - UserID:', user.id, 'SessionID:', req.sessionID);
-        res.json({ user: { id: user.id, username: user.username, email: user.email } });
+        res.json({ 
+          user: { 
+            id: user.id, 
+            username: user.username, 
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            isEmailVerified: user.isEmailVerified
+          }
+        });
       });
     } catch (error) {
       res.status(400).json({ error: error instanceof Error ? error.message : "Login failed" });
+    }
+  });
+
+  // Email verification endpoints
+  app.post("/api/auth/verify-email", async (req, res) => {
+    try {
+      const { token } = emailVerificationSchema.parse(req.body);
+      const user = await authService.verifyEmail(token);
+      
+      res.json({ 
+        user: { 
+          id: user.id, 
+          username: user.username, 
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          isEmailVerified: user.isEmailVerified
+        }
+      });
+    } catch (error) {
+      res.status(400).json({ error: error instanceof Error ? error.message : "Email verification failed" });
+    }
+  });
+
+  // Password reset endpoints
+  app.post("/api/auth/forgot-password", async (req, res) => {
+    try {
+      const { email } = forgotPasswordSchema.parse(req.body);
+      await authService.forgotPassword(email);
+      
+      res.json({ 
+        message: "If an account with that email exists, you will receive a password reset email." 
+      });
+    } catch (error) {
+      res.status(400).json({ error: error instanceof Error ? error.message : "Password reset failed" });
+    }
+  });
+
+  app.post("/api/auth/reset-password", async (req, res) => {
+    try {
+      const { token, password } = resetPasswordSchema.parse(req.body);
+      const user = await authService.resetPassword(token, password);
+      
+      res.json({ 
+        user: { 
+          id: user.id, 
+          username: user.username, 
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          isEmailVerified: user.isEmailVerified
+        }
+      });
+    } catch (error) {
+      res.status(400).json({ error: error instanceof Error ? error.message : "Password reset failed" });
     }
   });
 
@@ -199,6 +250,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           id: user.id, 
           username: user.username, 
           email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          isEmailVerified: user.isEmailVerified,
+          subscriptionStatus: user.subscriptionStatus,
+          subscriptionEndsAt: user.subscriptionEndsAt,
           platformConnections: user.platformConnections 
         } 
       });

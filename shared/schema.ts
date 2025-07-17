@@ -1,21 +1,48 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, jsonb, varchar, index } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Session storage table for auth
+export const sessions = pgTable(
+  "sessions",
+  {
+    sid: varchar("sid").primaryKey(),
+    sess: jsonb("sess").notNull(),
+    expire: timestamp("expire").notNull(),
+  },
+  (table) => [index("IDX_session_expire").on(table.expire)],
+);
+
+// Enhanced users table with boilerplate authentication features
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
+  username: text("username").unique(),
   email: text("email").notNull().unique(),
-  password: text("password").notNull(),
+  password: text("password"),
+  
+  // Profile information
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  profileImageUrl: text("profile_image_url"),
+  
+  // Email verification
   isEmailVerified: boolean("is_email_verified").default(false).notNull(),
   emailVerificationToken: text("email_verification_token"),
   emailVerificationExpiry: timestamp("email_verification_expiry"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  
+  // Password reset functionality
+  passwordResetToken: text("password_reset_token"),
+  passwordResetExpiry: timestamp("password_reset_expiry"),
+  
+  // Stripe integration
   stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),
-  subscriptionStatus: text("subscription_status"),
-  trialEndsAt: timestamp("trial_ends_at"),
+  subscriptionStatus: text("subscription_status").default("free"),
+  subscriptionEndsAt: timestamp("subscription_ends_at"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const mediaFiles = pgTable("media_files", {
@@ -127,7 +154,19 @@ export const postPlatformsRelations = relations(postPlatforms, ({ one }) => ({
 }));
 
 // Schemas
-export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true, isEmailVerified: true, emailVerificationToken: true, emailVerificationExpiry: true });
+export const insertUserSchema = createInsertSchema(users).omit({ 
+  id: true, 
+  createdAt: true, 
+  updatedAt: true, 
+  isEmailVerified: true, 
+  emailVerificationToken: true, 
+  emailVerificationExpiry: true,
+  passwordResetToken: true,
+  passwordResetExpiry: true,
+  stripeCustomerId: true,
+  stripeSubscriptionId: true,
+  subscriptionEndsAt: true
+});
 export const insertPlatformSchema = createInsertSchema(platforms).omit({ id: true });
 export const insertUserPlatformConnectionSchema = createInsertSchema(userPlatformConnections).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertPostSchema = createInsertSchema(posts).omit({ id: true, createdAt: true, updatedAt: true });

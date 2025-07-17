@@ -14,10 +14,17 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
+  getUserByResetToken(token: string): Promise<User | undefined>;
+  getAllUsers(): Promise<User[]>;
+  upsertUser(user: Partial<User>): Promise<User>;
   createUser(insertUser: InsertUser): Promise<User>;
   getUserWithConnections(userId: number): Promise<UserWithConnections | undefined>;
   updateUser(id: number, updates: Partial<User>): Promise<void>;
-  updateUserStripeInfo(id: number, customerId: string, subscriptionId: string): Promise<void>;
+  updateUserStripeInfo(userId: number, customerId: string, subscriptionId?: string): Promise<User>;
+  updateUserSubscription(userId: number, status: string, endsAt?: Date): Promise<User>;
+  updatePasswordResetToken(userId: number, token: string, expiry: Date): Promise<void>;
+  updatePassword(userId: number, hashedPassword: string): Promise<void>;
+  deleteUser(userId: number): Promise<void>;
   updateStripeCustomerId(id: number, customerId: string): Promise<User>;
 
   // Platform methods
@@ -86,6 +93,30 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  async getUserByResetToken(token: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.passwordResetToken, token));
+    return user || undefined;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users);
+  }
+
+  async upsertUser(userData: Partial<User>): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
+  }
+
   async getUserWithConnections(userId: number): Promise<UserWithConnections | undefined> {
     const user = await this.getUser(userId);
     if (!user) return undefined;
@@ -104,11 +135,57 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, id));
   }
 
-  async updateUserStripeInfo(id: number, customerId: string, subscriptionId: string): Promise<void> {
-    await db.update(users).set({
-      stripeCustomerId: customerId,
-      stripeSubscriptionId: subscriptionId,
-    }).where(eq(users.id, id));
+  async updateUserStripeInfo(userId: number, customerId: string, subscriptionId?: string): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({
+        stripeCustomerId: customerId,
+        stripeSubscriptionId: subscriptionId,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
+  }
+
+  async updateUserSubscription(userId: number, status: string, endsAt?: Date): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({
+        subscriptionStatus: status,
+        subscriptionEndsAt: endsAt,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
+  }
+
+  async updatePasswordResetToken(userId: number, token: string, expiry: Date): Promise<void> {
+    await db
+      .update(users)
+      .set({ 
+        passwordResetToken: token, 
+        passwordResetExpiry: expiry,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId));
+  }
+
+  async updatePassword(userId: number, hashedPassword: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ 
+        password: hashedPassword,
+        passwordResetToken: null,
+        passwordResetExpiry: null,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId));
+  }
+
+  async deleteUser(userId: number): Promise<void> {
+    await db.delete(users).where(eq(users.id, userId));
   }
 
   async updateStripeCustomerId(id: number, customerId: string): Promise<User> {
