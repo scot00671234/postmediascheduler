@@ -7,6 +7,7 @@ import { schedulerService } from "./services/scheduler";
 import { platformService } from "./services/platforms";
 import { emailService } from "./emailService";
 import { authService, requireAuth as authMiddleware, registerSchema, loginSchema, emailVerificationSchema, forgotPasswordSchema, resetPasswordSchema } from "./auth";
+import { requireProSubscription, checkFeatureLimits, PRO_LIMITS } from "./middleware/proFeatures";
 import { z } from "zod";
 import { insertPostSchema, insertUserSchema, insertMediaFileSchema, users } from "@shared/schema";
 import express from "express";
@@ -53,27 +54,45 @@ const initializePlatforms = async () => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Initialize session middleware - simplified for development
-  app.use(session({
+  // Initialize session middleware with production-ready configuration
+  const sessionConfig = {
     secret: process.env.SESSION_SECRET || "your-secret-key",
     resave: true, // Force session save
     saveUninitialized: true,
     name: 'connect.sid', // Default express-session name
     cookie: {
-      secure: false,
-      httpOnly: false, // Allow JS access for debugging
+      secure: process.env.NODE_ENV === 'production', // HTTPS in production
+      httpOnly: process.env.NODE_ENV === 'production', // Secure in production
       maxAge: 24 * 60 * 60 * 1000,
-      sameSite: false, // Most permissive
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : false, // Strict in production
     },
-  }));
+  };
+  
+  // Use PostgreSQL session store for production
+  if (process.env.NODE_ENV === 'production' && process.env.DATABASE_URL) {
+    const pgSession = ConnectPgSimple(session);
+    sessionConfig.store = new pgSession({
+      pool: pool,
+      tableName: 'sessions',
+      createTableIfMissing: true,
+    });
+  }
+  
+  app.use(session(sessionConfig));
 
   // Initialize platforms
   await initializePlatforms();
 
-  // Initialize Stripe
-  const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: "2024-09-30.acacia",
-  }) : null;
+  // Initialize Stripe - required for production
+  let stripe = null;
+  if (process.env.STRIPE_SECRET_KEY) {
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: "2024-09-30.acacia",
+    });
+    console.log('Stripe initialized successfully');
+  } else {
+    console.warn('Stripe not configured - subscription features will be disabled');
+  }
 
   // Create uploads directory if it doesn't exist
   const uploadsDir = path.join(process.cwd(), 'uploads');
@@ -110,6 +129,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Serve uploaded files
   app.use('/uploads', express.static(uploadsDir));
+
+  // Health check endpoints for production
+  app.get("/health", (req, res) => {
+    res.json({ 
+      status: "healthy", 
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      env: process.env.NODE_ENV || "development"
+    });
+  });
+
+  app.get("/", (req, res) => {
+    if (process.env.NODE_ENV === 'production') {
+      res.json({ 
+        message: "CrossPost Pro API is running",
+        version: "1.0.0",
+        status: "healthy"
+      });
+    } else {
+      res.redirect("/dashboard");
+    }
+  });
 
   // Enhanced Auth routes
   app.post("/api/auth/register", async (req, res) => {
@@ -287,8 +328,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // OAuth routes
   app.get("/api/oauth/connect/:platform", requireAuth, async (req, res) => {
     try {
+      const userId = req.session.userId!;
       const { platform } = req.params;
-      const authUrl = oauthService.getAuthUrl(platform, req.session.userId!);
+      
+      // Check connection limits
+      const canAddConnection = await checkFeatureLimits(userId, 'connections');
+      if (!canAddConnection) {
+        return res.status(403).json({ 
+          error: 'Connection limit reached',
+          message: 'You have reached your platform connection limit. Upgrade to Pro for more connections.',
+          upgradeUrl: '/subscribe'
+        });
+      }
+      
+      const authUrl = oauthService.getAuthUrl(platform, userId);
       res.json({ authUrl });
     } catch (error) {
       res.status(400).json({ error: error instanceof Error ? error.message : "OAuth connection failed" });
@@ -365,9 +418,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Post routes
+  // Post routes (with pro feature limits)
   app.post("/api/publish", requireAuth, async (req, res) => {
     try {
+      const userId = req.session.userId!;
+      
+      // Check feature limits
+      const canCreatePost = await checkFeatureLimits(userId, 'posts');
+      if (!canCreatePost) {
+        return res.status(403).json({ 
+          error: 'Post limit reached',
+          message: 'You have reached your post limit. Upgrade to Pro for unlimited posts.',
+          upgradeUrl: '/subscribe'
+        });
+      }
+      
       const schema = z.object({
         content: z.string().min(1),
         platforms: z.array(z.string()).min(1),
@@ -376,6 +441,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       const { content, platforms, mediaUrls, scheduledAt } = schema.parse(req.body);
+      
+      // Check scheduling limits for free users
+      if (scheduledAt) {
+        const canSchedule = await checkFeatureLimits(userId, 'scheduledPosts');
+        if (!canSchedule) {
+          return res.status(403).json({ 
+            error: 'Scheduled post limit reached',
+            message: 'You have reached your scheduled post limit. Upgrade to Pro for more scheduled posts.',
+            upgradeUrl: '/subscribe'
+          });
+        }
+      }
       
       // Create post record
       const post = await storage.createPost({

@@ -37,20 +37,20 @@ export class EmailService {
   }
 
   private getEmailConfig(): EmailConfig | null {
-    // Check for SendGrid configuration
-    if (process.env.SENDGRID_API_KEY) {
+    // Check for custom SMTP configuration (primary)
+    if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
       return {
-        host: 'smtp.sendgrid.net',
-        port: 587,
-        secure: false,
+        host: process.env.SMTP_HOST,
+        port: parseInt(process.env.SMTP_PORT || '587'),
+        secure: process.env.SMTP_SECURE === 'true',
         auth: {
-          user: 'apikey',
-          pass: process.env.SENDGRID_API_KEY,
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
         },
       };
     }
 
-    // Check for Gmail configuration
+    // Check for Gmail configuration (fallback)
     if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
       return {
         host: 'smtp.gmail.com',
@@ -63,15 +63,15 @@ export class EmailService {
       };
     }
 
-    // Check for custom SMTP configuration
-    if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+    // Check for SendGrid configuration (fallback)
+    if (process.env.SENDGRID_API_KEY) {
       return {
-        host: process.env.SMTP_HOST,
-        port: parseInt(process.env.SMTP_PORT || '587'),
-        secure: process.env.SMTP_SECURE === 'true',
+        host: 'smtp.sendgrid.net',
+        port: 587,
+        secure: false,
         auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
+          user: 'apikey',
+          pass: process.env.SENDGRID_API_KEY,
         },
       };
     }
