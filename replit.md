@@ -19,6 +19,7 @@ Preferred communication style: Simple, everyday language.
 - **Project Migration**: Successfully migrated from Replit Agent to Replit environment with:
   - PostgreSQL database setup and schema migration
   - Environment variables configuration (SESSION_SECRET, DATABASE_URL)
+  - LinkedIn OAuth credentials configured (LINKEDIN_CLIENT_ID, LINKEDIN_CLIENT_SECRET)
   - Fixed DOM nesting warnings in login, register, and sidebar components
   - Removed AI Assistant button from composer as requested
   - All dependencies installed and application running properly
