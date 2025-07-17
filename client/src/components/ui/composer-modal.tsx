@@ -10,6 +10,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { toast } from "@/hooks/use-toast";
 import { CloudUpload, Sparkles, Save, Send } from "lucide-react";
+import { SiLinkedin, SiX } from "react-icons/si";
 
 interface ComposerModalProps {
   isOpen: boolean;
@@ -110,18 +111,11 @@ export function ComposerModal({ isOpen, onClose }: ComposerModalProps) {
   };
 
   const getPlatformIcon = (platform: string) => {
-    const iconMap: Record<string, string> = {
-      twitter: "🐦",
-      instagram: "📷",
-      linkedin: "💼",
-      facebook: "📘",
-      tiktok: "🎵",
-      youtube: "📺",
-      bluesky: "☁️",
-      threads: "🧵",
-      pinterest: "📌",
+    const iconMap: Record<string, React.ReactNode> = {
+      twitter: <SiX className="w-4 h-4" />,
+      linkedin: <SiLinkedin className="w-4 h-4" />,
     };
-    return iconMap[platform] || "🔗";
+    return iconMap[platform] || <span className="w-4 h-4 text-center">🔗</span>;
   };
 
   const getCharacterLimit = (platform: string) => {

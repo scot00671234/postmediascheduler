@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, ArrowRight, Users, Clock, Shield, Zap } from "lucide-react";
+import { SiLinkedin, SiX } from "react-icons/si";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
@@ -45,8 +46,8 @@ export default function Landing() {
   ];
 
   const platforms = [
-    { name: "X", icon: "🐦", color: "bg-blue-500" },
-    { name: "LinkedIn", icon: "💼", color: "bg-blue-700" }
+    { name: "X", icon: <SiX className="w-6 h-6" />, color: "bg-black" },
+    { name: "LinkedIn", icon: <SiLinkedin className="w-6 h-6" />, color: "bg-blue-700" }
   ];
 
   const pricingPlans = [

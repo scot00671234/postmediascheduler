@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { apiRequest } from "@/lib/queryClient";
 import { toast } from "@/hooks/use-toast";
+import { SiLinkedin, SiX } from "react-icons/si";
 
 interface PlatformCardProps {
   platform: {
@@ -66,11 +67,11 @@ export function PlatformCard({ platform }: PlatformCardProps) {
   };
 
   const getIconComponent = () => {
-    const iconMap: Record<string, string> = {
-      twitter: "🐦",
-      linkedin: "💼",
+    const iconMap: Record<string, React.ReactNode> = {
+      twitter: <SiX className="w-5 h-5" />,
+      linkedin: <SiLinkedin className="w-5 h-5" />,
     };
-    return iconMap[platform.name] || "🔗";
+    return iconMap[platform.name] || <span className="w-5 h-5 text-center">🔗</span>;
   };
 
   return (
