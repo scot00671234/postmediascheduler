@@ -66,13 +66,7 @@ function Router() {
           </AppLayout>
         </ProtectedRoute>
       </Route>
-      <Route path="/billing">
-        <ProtectedRoute>
-          <AppLayout>
-            <Billing />
-          </AppLayout>
-        </ProtectedRoute>
-      </Route>
+
       <Route path="/settings">
         <ProtectedRoute>
           <AppLayout>

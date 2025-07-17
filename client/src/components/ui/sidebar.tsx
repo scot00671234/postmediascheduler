@@ -6,8 +6,7 @@ import {
   Calendar, 
   Link as LinkIcon, 
   Settings,
-  LogOut,
-  CreditCard
+  LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
@@ -38,7 +37,6 @@ export function Sidebar() {
     { name: "Compose", href: "/compose", icon: Edit },
     { name: "Scheduled", href: "/scheduled", icon: Calendar },
     { name: "Connections", href: "/connections", icon: LinkIcon },
-    { name: "Billing", href: "/billing", icon: CreditCard },
     { name: "Settings", href: "/settings", icon: Settings },
   ];
 
