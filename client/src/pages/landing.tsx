@@ -71,23 +71,26 @@ export default function Landing() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50">
+    <div className="min-h-screen animate-fade-in">
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         {/* Navigation */}
-        <nav className="flex items-center justify-between p-6 max-w-7xl mx-auto">
-          <div className="flex items-center space-x-2">
-            <h1 className="text-2xl font-bold text-gray-900">Post Media</h1>
-            <Badge variant="secondary" className="text-xs">Pro</Badge>
+        <nav className="flex items-center justify-between p-6 max-w-7xl mx-auto glass mx-4 my-4 rounded-2xl animate-slide-in">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center animate-glow">
+              <span className="text-white font-bold text-lg">P</span>
+            </div>
+            <h1 className="text-2xl font-bold gradient-text">Post Media</h1>
+            <Badge variant="secondary" className="text-xs gradient-bg text-white">Pro</Badge>
           </div>
           <div className="flex items-center space-x-4">
             <Link href="/login">
-              <Button variant="ghost" className="text-gray-600 hover:text-gray-900">
+              <Button variant="ghost" className="text-foreground hover:text-foreground glass-hover">
                 Sign In
               </Button>
             </Link>
             <Link href="/register">
-              <Button className="bg-amber-500 hover:bg-amber-600 text-white">
+              <Button className="gradient-bg text-white hover:shadow-lg transition-all duration-300">
                 Get Started
               </Button>
             </Link>
@@ -96,42 +99,46 @@ export default function Landing() {
 
         {/* Hero Content */}
         <div className="max-w-7xl mx-auto px-6 py-20 text-center">
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-            Publish to All Your
-            <span className="text-gray-600"> Social Media</span>
-          </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Create once, publish everywhere. The most efficient way to manage your social media presence across all platforms.
-          </p>
-          <div className="flex justify-center">
-            <Link href="/register">
-              <Button size="lg" className="bg-amber-500 hover:bg-amber-600 text-white px-8 py-3 text-lg rounded-xl">
-                Start Free 7-Day Trial
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            </Link>
+          <div className="glass mx-4 p-12 rounded-3xl animate-slide-in">
+            <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6">
+              Publish to All Your
+              <span className="gradient-text"> Social Media</span>
+            </h1>
+            <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
+              Create once, publish everywhere. The most efficient way to manage your social media presence across all platforms.
+            </p>
+            <div className="flex justify-center">
+              <Link href="/register">
+                <Button size="lg" className="gradient-bg text-white px-8 py-3 text-lg rounded-xl hover:shadow-lg transition-all duration-300 animate-glow">
+                  Start Free 7-Day Trial
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Platforms Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20">
         <div className="max-w-7xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Connect X & LinkedIn
-          </h2>
-          <p className="text-gray-600 mb-12 max-w-2xl mx-auto">
-            The two most important platforms for creators and professionals. Post once, reach everywhere.
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-2 gap-12 max-w-md mx-auto">
-            {platforms.map((platform) => (
-              <div key={platform.name} className="flex flex-col items-center space-y-3">
-                <div className={`w-16 h-16 rounded-2xl ${platform.color} flex items-center justify-center text-white text-2xl shadow-lg`}>
-                  {platform.icon}
+          <div className="glass mx-4 p-12 rounded-3xl animate-slide-in">
+            <h2 className="text-3xl font-bold gradient-text mb-4">
+              Connect X & LinkedIn
+            </h2>
+            <p className="text-muted-foreground mb-12 max-w-2xl mx-auto">
+              The two most important platforms for creators and professionals. Post once, reach everywhere.
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-2 gap-12 max-w-md mx-auto">
+              {platforms.map((platform) => (
+                <div key={platform.name} className="flex flex-col items-center space-y-3">
+                  <div className={`w-16 h-16 rounded-2xl ${platform.color} flex items-center justify-center text-white text-2xl shadow-lg`}>
+                    {platform.icon}
+                  </div>
+                  <span className="text-sm font-medium text-muted-foreground">{platform.name}</span>
                 </div>
-                <span className="text-sm font-medium text-gray-700">{platform.name}</span>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>

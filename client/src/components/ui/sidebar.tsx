@@ -43,16 +43,21 @@ export function Sidebar() {
   ];
 
   return (
-    <div className="w-64 bg-white/90 backdrop-blur-sm border-r border-amber-200 flex flex-col shadow-sm">
+    <div className="w-64 glass flex flex-col transition-all duration-300 animate-slide-in">
       {/* Logo */}
-      <div className="p-6 border-b border-amber-200">
-        <h1 className="text-xl font-bold text-amber-900">Post Media</h1>
-        <p className="text-sm text-amber-700">Multi-Platform Publisher</p>
+      <div className="p-6 border-b border-white/20">
+        <div className="flex items-center space-x-3 mb-2">
+          <div className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center animate-glow">
+            <span className="text-white font-bold text-lg">P</span>
+          </div>
+          <h1 className="text-xl font-bold gradient-text">Post Media</h1>
+        </div>
+        <p className="text-sm text-muted-foreground">Multi-Platform Publisher</p>
       </div>
       
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-2">
-        {navigation.map((item) => {
+        {navigation.map((item, index) => {
           const Icon = item.icon;
           const isActive = location === item.href;
           
@@ -61,13 +66,19 @@ export function Sidebar() {
               key={item.name} 
               href={item.href}
               className={cn(
-                "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                "flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300 group glass-hover animate-slide-in",
                 isActive
-                  ? "text-amber-900 bg-amber-100"
-                  : "text-amber-700 hover:text-amber-900 hover:bg-amber-50"
+                  ? "gradient-bg text-white shadow-lg"
+                  : "text-foreground hover:text-foreground",
+                `animation-delay-${index * 100}ms`
               )}
+              style={{ animationDelay: `${index * 100}ms` }}
             >
-              <Icon className="w-5 h-5 mr-3" />
+              <Icon className={cn(
+                "w-5 h-5 mr-3 transition-transform duration-300",
+                isActive ? "text-white" : "text-muted-foreground group-hover:text-foreground",
+                "group-hover:scale-110"
+              )} />
               {item.name}
             </Link>
           );
@@ -75,24 +86,24 @@ export function Sidebar() {
       </nav>
       
       {/* User Profile */}
-      <div className="p-4 border-t border-amber-200">
-        <div className="flex items-center mb-3">
-          <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center mr-3">
-            <span className="text-amber-700 font-medium text-sm">
+      <div className="p-4 border-t border-white/20">
+        <div className="flex items-center mb-3 glass rounded-xl p-3 animate-slide-in">
+          <div className="w-10 h-10 rounded-full gradient-bg flex items-center justify-center mr-3 animate-glow">
+            <span className="text-white font-medium text-sm">
               {user?.user?.username?.[0]?.toUpperCase() || "U"}
             </span>
           </div>
           <div>
-            <p className="text-sm font-medium text-amber-900">
+            <p className="text-sm font-medium text-foreground">
               {user?.user?.username || "User"}
             </p>
-            <p className="text-xs text-amber-700">Pro Plan</p>
+            <p className="text-xs gradient-text font-medium">Pro Plan</p>
           </div>
         </div>
         <Button 
           variant="ghost" 
           size="sm" 
-          className="w-full justify-start text-amber-700 hover:text-amber-900"
+          className="w-full justify-start text-muted-foreground hover:text-foreground glass-hover rounded-xl transition-all duration-300"
           onClick={handleLogout}
         >
           <LogOut className="w-4 h-4 mr-2" />

@@ -134,16 +134,16 @@ export default function Dashboard() {
   })) || [];
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-amber-50 to-orange-50">
+    <div className="flex-1 overflow-y-auto p-6 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-8 glass p-6 rounded-2xl animate-slide-in">
         <div>
-          <h1 className="text-2xl font-bold text-amber-900">Dashboard</h1>
-          <p className="text-sm text-amber-700">Manage your social media posts across all platforms</p>
+          <h1 className="text-2xl font-bold gradient-text">Dashboard</h1>
+          <p className="text-sm text-muted-foreground">Manage your social media posts across all platforms</p>
         </div>
         <div className="flex items-center space-x-4">
           <NotificationBell />
-          <Button onClick={() => setShowComposer(true)} className="bg-amber-600 hover:bg-amber-700 text-white shadow-sm">
+          <Button onClick={() => setShowComposer(true)} className="animate-glow">
             <Plus className="w-4 h-4 mr-2" />
             New Post
           </Button>
@@ -152,29 +152,29 @@ export default function Dashboard() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card className="bg-white/80 backdrop-blur-sm border-amber-200/50 shadow-sm">
+        <Card className="animate-slide-in">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-amber-700">Posts This Week</p>
-                <p className="text-2xl font-bold text-amber-900">{stats?.postsThisWeek || 0}</p>
+                <p className="text-sm text-muted-foreground">Posts This Week</p>
+                <p className="text-2xl font-bold gradient-text">{stats?.postsThisWeek || 0}</p>
               </div>
-              <div className="bg-amber-100 p-3 rounded-full">
-                <NotebookPen className="w-5 h-5 text-amber-600" />
+              <div className="gradient-bg p-3 rounded-full animate-float">
+                <NotebookPen className="w-5 h-5 text-white" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-white/80 backdrop-blur-sm border-amber-200/50 shadow-sm">
+        <Card className="animate-slide-in" style={{ animationDelay: "100ms" }}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-amber-700">Connected Platforms</p>
-                <p className="text-2xl font-bold text-amber-900">{stats?.connectedPlatforms || 0}</p>
+                <p className="text-sm text-muted-foreground">Connected Platforms</p>
+                <p className="text-2xl font-bold gradient-text">{stats?.connectedPlatforms || 0}</p>
               </div>
-              <div className="bg-amber-100 p-3 rounded-full">
-                <Link className="w-5 h-5 text-amber-600" />
+              <div className="gradient-bg p-3 rounded-full animate-float">
+                <Link className="w-5 h-5 text-white" />
               </div>
             </div>
           </CardContent>
