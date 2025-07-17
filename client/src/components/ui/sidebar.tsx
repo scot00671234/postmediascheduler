@@ -2,7 +2,6 @@ import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { 
   Home, 
-  Edit, 
   Calendar, 
   Settings,
   LogOut
@@ -33,7 +32,6 @@ export function Sidebar() {
 
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: Home },
-    { name: "Compose", href: "/compose", icon: Edit },
     { name: "Scheduled", href: "/scheduled", icon: Calendar },
     { name: "Settings", href: "/settings", icon: Settings },
   ];

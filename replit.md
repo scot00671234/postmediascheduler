@@ -18,8 +18,9 @@ Preferred communication style: Simple, everyday language.
   - Replaced emoji icons (🐦, 💼) with official brand icons (SiX, SiLinkedin)
   - Applied consistent styling across platform cards, landing page, and composer modal
   - Improved visual consistency with current UI design standards
-- **UI Simplification**: Streamlined navigation by removing Connections menu item
+- **UI Simplification**: Streamlined navigation by removing Connections and Compose menu items
   - Moved connection functionalities to be accessible directly from dashboard
+  - Compose functionality remains accessible via ComposerModal on dashboard
   - Organized billing information under Settings tab with proper sections
   - Created tabbed settings interface (Profile, Notifications, Security, Billing, Appearance)
   - Focused on simplicity and reduced cognitive load for users
