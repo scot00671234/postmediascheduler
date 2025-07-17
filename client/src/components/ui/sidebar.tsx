@@ -4,7 +4,6 @@ import {
   Home, 
   Edit, 
   Calendar, 
-  Link as LinkIcon, 
   Settings,
   LogOut
 } from "lucide-react";
@@ -36,7 +35,6 @@ export function Sidebar() {
     { name: "Dashboard", href: "/dashboard", icon: Home },
     { name: "Compose", href: "/compose", icon: Edit },
     { name: "Scheduled", href: "/scheduled", icon: Calendar },
-    { name: "Connections", href: "/connections", icon: LinkIcon },
     { name: "Settings", href: "/settings", icon: Settings },
   ];
 

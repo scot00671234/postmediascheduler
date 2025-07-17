@@ -45,13 +45,7 @@ function Router() {
           </AppLayout>
         </ProtectedRoute>
       </Route>
-      <Route path="/connections">
-        <ProtectedRoute>
-          <AppLayout>
-            <Connections />
-          </AppLayout>
-        </ProtectedRoute>
-      </Route>
+
       <Route path="/compose">
         <ProtectedRoute>
           <AppLayout>
