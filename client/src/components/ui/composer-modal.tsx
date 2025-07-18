@@ -5,11 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { toast } from "@/hooks/use-toast";
-import { CloudUpload, Sparkles, Save, Send } from "lucide-react";
+import { CloudUpload, X, Save, Send, Image, Video, File } from "lucide-react";
 import { SiLinkedin, SiX } from "react-icons/si";
 
 interface ComposerModalProps {
@@ -23,6 +23,9 @@ export function ComposerModal({ isOpen, onClose }: ComposerModalProps) {
   const [scheduledDate, setScheduledDate] = useState("");
   const [scheduledTime, setScheduledTime] = useState("");
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: platforms } = useQuery({
     queryKey: ["/api/platforms"],
@@ -32,6 +35,30 @@ export function ComposerModal({ isOpen, onClose }: ComposerModalProps) {
   const { data: connections } = useQuery({
     queryKey: ["/api/connections"],
     enabled: isOpen,
+  });
+
+  const uploadMutation = useMutation({
+    mutationFn: async (formData: FormData) => {
+      const response = await apiRequest("POST", "/api/upload", formData, {
+        isFormData: true,
+      });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setUploadedFiles(prev => [...prev, data]);
+      setMediaUrls(prev => [...prev, data.id.toString()]);
+      toast({
+        title: "File Uploaded",
+        description: "Your file has been uploaded successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Upload Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
   const publishMutation = useMutation({
@@ -108,6 +135,41 @@ export function ComposerModal({ isOpen, onClose }: ComposerModalProps) {
     setScheduledDate("");
     setScheduledTime("");
     setMediaUrls([]);
+    setUploadedFiles([]);
+  };
+
+  const handleFileUpload = (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    uploadMutation.mutate(formData);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = Array.from(e.dataTransfer.files);
+    files.forEach(handleFileUpload);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const removeFile = (fileId: string) => {
+    setUploadedFiles(prev => prev.filter(f => f.id !== parseInt(fileId)));
+    setMediaUrls(prev => prev.filter(id => id !== fileId));
+  };
+
+  const getFileIcon = (mimeType: string) => {
+    if (mimeType.startsWith('image/')) return <Image className="w-4 h-4" />;
+    if (mimeType.startsWith('video/')) return <Video className="w-4 h-4" />;
+    return <File className="w-4 h-4" />;
   };
 
   const getPlatformIcon = (platform: string) => {
@@ -135,136 +197,166 @@ export function ComposerModal({ isOpen, onClose }: ComposerModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="max-w-5xl max-h-[95vh] overflow-hidden flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>Create New Post</DialogTitle>
         </DialogHeader>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-          {/* Content Form */}
-          <div className="space-y-6">
-            <div>
-              <Label htmlFor="content">Post Content</Label>
-              <Textarea
-                id="content"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="What's on your mind?"
-                className="min-h-[150px] mt-2"
-              />
-              <div className="flex items-center justify-between mt-2">
-                <span className="text-sm text-slate-500">
-                  Characters: {content.length}
-                </span>
+        <div className="flex-1 overflow-y-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
+            {/* Content Form - Left Column */}
+            <div className="lg:col-span-2 space-y-4">
+              <div>
+                <Label htmlFor="content" className="text-sm font-medium">Post Content</Label>
+                <Textarea
+                  id="content"
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="What's on your mind?"
+                  className="min-h-[120px] mt-1 resize-none"
+                />
+                <div className="flex items-center justify-between mt-1">
+                  <span className="text-xs text-slate-500">
+                    Characters: {content.length}
+                  </span>
+                </div>
               </div>
-            </div>
-            
-            <div>
-              <Label>Media</Label>
-              <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-indigo-400 transition-colors mt-2">
-                <CloudUpload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                <p className="text-sm text-slate-600">
-                  Drag and drop files here or{" "}
-                  <Button variant="link" className="p-0 h-auto text-indigo-600 hover:text-indigo-800">
-                    browse
-                  </Button>
-                </p>
-                <p className="text-xs text-slate-500 mt-1">
-                  Supports images, videos up to 100MB
-                </p>
+              
+              <div>
+                <Label className="text-sm font-medium">Media Files</Label>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept="image/*,video/*"
+                  onChange={(e) => {
+                    const files = Array.from(e.target.files || []);
+                    files.forEach(handleFileUpload);
+                  }}
+                  className="hidden"
+                />
+                <div
+                  className={`border-2 border-dashed rounded-lg p-4 text-center hover:border-indigo-400 transition-colors mt-1 ${
+                    isDragging ? 'border-indigo-400 bg-indigo-50' : 'border-slate-300'
+                  }`}
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <CloudUpload className="w-6 h-6 text-slate-400 mx-auto mb-1" />
+                  <p className="text-sm text-slate-600">
+                    Drop files or{" "}
+                    <span className="text-indigo-600 hover:text-indigo-800 cursor-pointer">
+                      browse
+                    </span>
+                  </p>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Images, videos up to 100MB
+                  </p>
+                </div>
+                
+                {/* Uploaded Files */}
+                {uploadedFiles.length > 0 && (
+                  <div className="mt-3 space-y-2">
+                    {uploadedFiles.map((file) => (
+                      <div key={file.id} className="flex items-center justify-between p-2 bg-slate-50 rounded-md">
+                        <div className="flex items-center space-x-2">
+                          {getFileIcon(file.mimeType)}
+                          <span className="text-sm text-slate-700 truncate">{file.originalName}</span>
+                          <span className="text-xs text-slate-500">
+                            ({(file.size / 1024 / 1024).toFixed(1)}MB)
+                          </span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeFile(file.id.toString())}
+                          className="text-slate-400 hover:text-red-600"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            </div>
-            
-            <div>
-              <Label>Scheduling</Label>
-              <div className="grid grid-cols-2 gap-4 mt-2">
-                <div>
-                  <Label htmlFor="date" className="text-xs text-slate-500">Date</Label>
+              
+              <div>
+                <Label className="text-sm font-medium">Schedule (Optional)</Label>
+                <div className="grid grid-cols-2 gap-3 mt-1">
                   <Input
-                    id="date"
                     type="date"
                     value={scheduledDate}
                     onChange={(e) => setScheduledDate(e.target.value)}
-                    className="mt-1"
+                    className="text-sm"
                   />
-                </div>
-                <div>
-                  <Label htmlFor="time" className="text-xs text-slate-500">Time</Label>
                   <Input
-                    id="time"
                     type="time"
                     value={scheduledTime}
                     onChange={(e) => setScheduledTime(e.target.value)}
-                    className="mt-1"
+                    className="text-sm"
                   />
                 </div>
               </div>
             </div>
-          </div>
-          
-          {/* Platform Selection */}
-          <div className="space-y-6">
-            <div>
-              <Label>Target Platforms</Label>
-              <div className="space-y-3 mt-3">
-                {availablePlatforms.map((platform: any) => {
-                  const connection = connectedPlatforms.find((c: any) => c.platform.id === platform.id);
-                  return (
-                    <div key={platform.id} className="flex items-center justify-between p-3 border border-slate-200 rounded-md">
-                      <div className="flex items-center space-x-3">
-                        <Checkbox
-                          id={platform.name}
-                          checked={selectedPlatforms.includes(platform.name)}
-                          onCheckedChange={(checked) => handlePlatformToggle(platform.name, checked as boolean)}
-                        />
-                        <Label htmlFor={platform.name} className="flex items-center cursor-pointer">
-                          <span className="text-lg mr-2">{getPlatformIcon(platform.name)}</span>
-                          <span className="text-sm font-medium">{platform.displayName}</span>
-                        </Label>
-                      </div>
-                      <Button variant="ghost" size="sm" className="text-slate-400 hover:text-slate-600">
-                        ⚙️
-                      </Button>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
             
-            <div>
-              <Label>Platform Preview</Label>
-              <div className="bg-slate-50 rounded-lg p-4 mt-3">
-                <div className="space-y-3">
-                  {selectedPlatforms.map((platformName) => {
-                    const platform = platforms?.find((p: any) => p.name === platformName);
-                    const charLimit = getCharacterLimit(platformName);
-                    const isOverLimit = content.length > charLimit;
-                    
-                    return (
-                      <Card key={platformName} className="bg-white">
-                        <CardContent className="p-3">
-                          <div className="flex items-center mb-2">
-                            <span className="text-lg mr-2">{getPlatformIcon(platformName)}</span>
-                            <span className="text-sm font-medium">{platform?.displayName}</span>
-                          </div>
-                          <p className={`text-sm ${isOverLimit ? 'text-red-600' : 'text-slate-700'}`}>
-                            {content || "Your content will appear here..."}
-                          </p>
-                          <div className={`text-xs mt-1 ${isOverLimit ? 'text-red-500' : 'text-slate-500'}`}>
-                            {content.length}/{charLimit} characters
-                            {isOverLimit && " (over limit)"}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
+            {/* Platform Selection & Preview - Right Column */}
+            <div className="space-y-4">
+              <div>
+                <Label className="text-sm font-medium">Target Platforms</Label>
+                <div className="space-y-2 mt-1">
+                  {availablePlatforms.map((platform: any) => (
+                    <div key={platform.id} className="flex items-center space-x-2 p-2 border border-slate-200 rounded-md">
+                      <Checkbox
+                        id={platform.name}
+                        checked={selectedPlatforms.includes(platform.name)}
+                        onCheckedChange={(checked) => handlePlatformToggle(platform.name, checked as boolean)}
+                      />
+                      <Label htmlFor={platform.name} className="flex items-center cursor-pointer flex-1">
+                        <span className="mr-2">{getPlatformIcon(platform.name)}</span>
+                        <span className="text-sm">{platform.displayName}</span>
+                      </Label>
+                    </div>
+                  ))}
                 </div>
               </div>
+              
+              {selectedPlatforms.length > 0 && (
+                <div>
+                  <Label className="text-sm font-medium">Platform Preview</Label>
+                  <div className="space-y-2 mt-1">
+                    {selectedPlatforms.map((platformName) => {
+                      const platform = platforms?.find((p: any) => p.name === platformName);
+                      const charLimit = getCharacterLimit(platformName);
+                      const isOverLimit = content.length > charLimit;
+                      
+                      return (
+                        <Card key={platformName} className="bg-white border-slate-200">
+                          <CardContent className="p-3">
+                            <div className="flex items-center mb-2">
+                              <span className="mr-2">{getPlatformIcon(platformName)}</span>
+                              <span className="text-sm font-medium">{platform?.displayName}</span>
+                            </div>
+                            <p className={`text-sm ${isOverLimit ? 'text-red-600' : 'text-slate-700'}`}>
+                              {content || "Your content will appear here..."}
+                            </p>
+                            <div className={`text-xs mt-1 ${isOverLimit ? 'text-red-500' : 'text-slate-500'}`}>
+                              {content.length}/{charLimit}
+                              {isOverLimit && " (over limit)"}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
         
-        <div className="flex items-center justify-between mt-6 pt-6 border-t">
+        <div className="flex items-center justify-between pt-4 border-t flex-shrink-0">
           <Button variant="ghost" className="text-slate-600 hover:text-slate-800">
             <Save className="w-4 h-4 mr-2" />
             Save Draft
@@ -275,7 +367,7 @@ export function ComposerModal({ isOpen, onClose }: ComposerModalProps) {
             </Button>
             <Button 
               onClick={handlePublish} 
-              disabled={publishMutation.isPending}
+              disabled={publishMutation.isPending || uploadMutation.isPending}
               className="bg-indigo-600 hover:bg-indigo-700"
             >
               <Send className="w-4 h-4 mr-2" />
