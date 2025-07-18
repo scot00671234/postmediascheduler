@@ -1,0 +1,117 @@
+Filter logs using "", (), AND, OR, -
+
+
+
+You reached the start of the range → Jul 10, 2025, 2:26 AM
+
+2025-07-11 19:06:28.003 UTC [7789] LOG:  invalid length of startup packet
+
+2025-07-11 19:06:28.890 UTC [7790] LOG:  invalid length of startup packet
+
+2025-07-12 00:06:34.986 UTC [8691] LOG:  invalid length of startup packet
+
+2025-07-12 00:06:35.197 UTC [8692] LOG:  invalid length of startup packet
+
+2025-07-12 00:36:37.472 UTC [8783] LOG:  invalid length of startup packet
+
+2025-07-12 00:36:38.324 UTC [8784] LOG:  invalid length of startup packet
+
+2025-07-12 05:04:01.210 UTC [9587] LOG:  invalid length of startup packet
+
+2025-07-12 05:04:01.604 UTC [9588] LOG:  invalid length of startup packet
+
+2025-07-12 08:09:55.855 UTC [10146] LOG:  invalid length of startup packet
+
+2025-07-12 08:09:56.264 UTC [10147] LOG:  invalid length of startup packet
+
+2025-07-12 08:26:18.849 UTC [10198] LOG:  invalid length of startup packet
+
+2025-07-12 08:26:19.118 UTC [10199] LOG:  invalid length of startup packet
+
+2025-07-12 21:38:04.612 UTC [12574] LOG:  invalid length of startup packet
+
+2025-07-12 21:38:05.347 UTC [12575] LOG:  invalid length of startup packet
+
+2025-07-13 04:51:24.777 UTC [13876] LOG:  invalid length of startup packet
+
+2025-07-13 04:51:25.561 UTC [13877] LOG:  invalid length of startup packet
+
+2025-07-13 07:58:56.858 UTC [14440] LOG:  invalid length of startup packet
+
+2025-07-13 07:58:57.274 UTC [14441] LOG:  invalid length of startup packet
+
+2025-07-13 10:01:30.957 UTC [14810] LOG:  invalid length of startup packet
+
+2025-07-13 10:01:31.352 UTC [14811] LOG:  invalid length of startup packet
+
+2025-07-13 10:13:38.580 UTC [14848] LOG:  invalid length of startup packet
+
+2025-07-13 10:13:38.927 UTC [14849] LOG:  invalid length of startup packet
+
+2025-07-13 14:52:20.694 UTC [15686] LOG:  invalid length of startup packet
+
+2025-07-13 14:52:20.870 UTC [15687] LOG:  invalid length of startup packet
+
+2025-07-13 17:56:44.978 UTC [16240] LOG:  invalid length of startup packet
+
+2025-07-13 17:56:45.436 UTC [16242] LOG:  invalid length of startup packet
+
+2025-07-14 05:44:26.347 UTC [18365] LOG:  invalid length of startup packet
+
+2025-07-14 05:44:27.138 UTC [18366] LOG:  invalid length of startup packet
+
+2025-07-14 09:44:52.956 UTC [19088] LOG:  invalid length of startup packet
+
+2025-07-14 09:44:53.364 UTC [19089] LOG:  invalid length of startup packet
+
+2025-07-14 09:45:00.693 UTC [19090] LOG:  invalid length of startup packet
+
+2025-07-14 09:45:01.037 UTC [19091] LOG:  invalid length of startup packet
+
+2025-07-15 02:03:47.548 UTC [22027] LOG:  invalid length of startup packet
+
+2025-07-15 02:03:47.950 UTC [22028] LOG:  invalid length of startup packet
+
+2025-07-15 02:10:21.996 UTC [22048] LOG:  invalid length of startup packet
+
+2025-07-15 02:10:22.417 UTC [22049] LOG:  invalid length of startup packet
+
+2025-07-15 07:30:39.822 UTC [23011] LOG:  invalid length of startup packet
+
+2025-07-15 07:30:40.757 UTC [23012] LOG:  invalid length of startup packet
+
+2025-07-15 09:44:12.043 UTC [23414] LOG:  invalid length of startup packet
+
+2025-07-15 09:44:12.395 UTC [23415] LOG:  invalid length of startup packet
+
+2025-07-15 18:16:04.454 UTC [24951] LOG:  invalid length of startup packet
+
+2025-07-15 18:16:05.394 UTC [24952] LOG:  invalid length of startup packet
+
+2025-07-15 21:27:17.632 UTC [25526] LOG:  invalid length of startup packet
+
+2025-07-15 21:27:17.852 UTC [25527] LOG:  invalid length of startup packet
+
+2025-07-15 23:12:58.631 UTC [25847] LOG:  invalid length of startup packet
+
+2025-07-15 23:13:02.296 UTC [25848] LOG:  invalid length of startup packet
+
+2025-07-15 23:13:36.642 UTC [25850] LOG:  incomplete startup packet
+
+2025-07-15 23:13:37.009 UTC [25852] LOG:  invalid length of startup packet
+
+2025-07-16 05:01:26.930 UTC [26896] LOG:  invalid length of startup packet
+
+2025-07-16 05:01:27.554 UTC [26897] LOG:  invalid length of startup packet
+
+2025-07-16 05:40:28.638 UTC [27015] LOG:  invalid length of startup packet
+
+2025-07-16 05:40:29.095 UTC [27016] LOG:  invalid length of startup packet
+
+2025-07-16 19:23:46.148 UTC [29484] LOG:  invalid length of startup packet
+
+2025-07-16 19:23:47.084 UTC [29485] LOG:  invalid length of startup packet
+
+2025-07-17 01:37:06.123 UTC [30606] LOG:  invalid length of startup packet
+
+2025-07-17 01:37:06.296 UTC [30607] LOG:  invalid length of startup packet

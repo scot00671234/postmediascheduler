@@ -95,15 +95,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
 
   // Create uploads directory if it doesn't exist
-  const uploadsDir = path.join(process.cwd(), 'uploads');
-  if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
+  const uploadsDir = process.env.NODE_ENV === 'production' 
+    ? '/app/uploads' 
+    : path.join(process.cwd(), 'uploads');
+  
+  try {
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+  } catch (error) {
+    console.warn('Could not create uploads directory:', error);
+    // Use a fallback directory in production
+    const fallbackDir = '/tmp/uploads';
+    if (!fs.existsSync(fallbackDir)) {
+      fs.mkdirSync(fallbackDir, { recursive: true });
+    }
   }
 
   // Configure multer for file uploads
   const multerStorage = multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, uploadsDir);
+      // Use fallback directory if primary one doesn't exist
+      const finalDir = fs.existsSync(uploadsDir) ? uploadsDir : '/tmp/uploads';
+      cb(null, finalDir);
     },
     filename: (req, file, cb) => {
       const fileExtension = path.extname(file.originalname);
@@ -128,7 +142,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Serve uploaded files
-  app.use('/uploads', express.static(uploadsDir));
+  const staticDir = fs.existsSync(uploadsDir) ? uploadsDir : '/tmp/uploads';
+  app.use('/uploads', express.static(staticDir));
 
   // Health check endpoints for production
   app.get("/health", (req, res) => {
