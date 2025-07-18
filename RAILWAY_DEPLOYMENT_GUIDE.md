@@ -1,129 +1,177 @@
 # Railway Deployment Guide for CrossPost Pro
 
+This guide walks you through deploying CrossPost Pro to Railway with automatic database table creation.
+
 ## Prerequisites
 
-1. **Railway Account**: Sign up at https://railway.app
-2. **GitHub Repository**: Your code should be in a GitHub repository
-3. **Required Environment Variables**: Gather these before deployment
+1. Railway account (https://railway.app)
+2. GitHub repository with your project
+3. API keys for social media platforms (Twitter, LinkedIn)
 
-## Environment Variables Required
+## Step 1: Create Railway Project
 
-### Database (Auto-configured by Railway)
-- `DATABASE_URL` - Automatically set when you add PostgreSQL service
-
-### Essential Configuration
-- `SESSION_SECRET` - A secure random string for session encryption
-- `NODE_ENV` - Set to `production`
-
-### Stripe Configuration (Required for Subscriptions)
-- `STRIPE_SECRET_KEY` - Your Stripe secret key (starts with `sk_`)
-- `VITE_STRIPE_PUBLIC_KEY` - Your Stripe publishable key (starts with `pk_`)
-
-### SMTP Email Configuration
-- `SMTP_HOST` - Your SMTP server hostname
-- `SMTP_PORT` - SMTP port (usually 587)
-- `SMTP_SECURE` - `false` for port 587, `true` for port 465
-- `SMTP_USER` - Your email username
-- `SMTP_PASS` - Your email password or app password
-
-### OAuth Configuration (Optional)
-- `TWITTER_CLIENT_ID` - Twitter OAuth client ID
-- `TWITTER_CLIENT_SECRET` - Twitter OAuth client secret
-- `LINKEDIN_CLIENT_ID` - LinkedIn OAuth client ID
-- `LINKEDIN_CLIENT_SECRET` - LinkedIn OAuth client secret
-
-## Deployment Steps
-
-### 1. Create New Project
-1. Go to https://railway.app/dashboard
+1. Go to https://railway.app and sign in
 2. Click "New Project"
 3. Select "Deploy from GitHub repo"
-4. Choose your CrossPost Pro repository
+4. Connect your GitHub account and select your repository
+5. Railway will automatically detect it's a Node.js project
 
-### 2. Add PostgreSQL Database
-1. In your Railway project dashboard
-2. Click "Add Service"
-3. Choose "Database" → "PostgreSQL"
-4. Railway will automatically create `DATABASE_URL` environment variable
+## Step 2: Add PostgreSQL Database
 
-### 3. Configure Environment Variables
-1. Click on your web service
-2. Go to "Settings" → "Environment"
-3. Add all required environment variables listed above
+1. In your Railway project dashboard, click "New Service"
+2. Select "Database" → "PostgreSQL"
+3. Railway will automatically create a PostgreSQL database
+4. The `DATABASE_URL` environment variable will be automatically set
 
-### 4. Configure Build Settings
-The project includes `railway.json` and `nixpacks.toml` for automatic configuration:
-- Node.js 18 runtime
-- Automatic npm install and build
-- Starts with `npm start`
+## Step 3: Configure Environment Variables
 
-### 5. Deploy
-1. Railway will automatically deploy when you push to your main branch
-2. Wait for the build to complete
-3. Your app will be available at your Railway domain
+Add these environment variables in Railway's dashboard:
 
-## Post-Deployment Verification
+### Required Variables
+```
+SESSION_SECRET=your-super-secure-session-secret-key-here
+TWITTER_CLIENT_ID=your-twitter-client-id
+TWITTER_CLIENT_SECRET=your-twitter-client-secret
+LINKEDIN_CLIENT_ID=your-linkedin-client-id
+LINKEDIN_CLIENT_SECRET=your-linkedin-client-secret
+NODE_ENV=production
+```
 
-### 1. Database Tables
-- Tables are automatically created on first startup
-- Check Railway logs to confirm "Schema created successfully"
+### Optional Email Configuration (choose one)
+```
+# For SendGrid
+SENDGRID_API_KEY=your-sendgrid-api-key
+SENDGRID_FROM_EMAIL=noreply@yourdomain.com
 
-### 2. Email Service
-- Test email verification and password reset
-- Check Railway logs for email configuration status
+# For Gmail SMTP
+GMAIL_USER=your-gmail@gmail.com
+GMAIL_PASS=your-gmail-app-password
 
-### 3. Stripe Integration
-- Test subscription signup flow
-- Verify webhook endpoints if using Stripe webhooks
+# For Custom SMTP (Recommended)
+SMTP_HOST=smtp.yourdomain.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=noreply@yourdomain.com
+SMTP_PASS=your-smtp-password
+SMTP_FROM=noreply@yourdomain.com
+```
 
-### 4. OAuth Connections
-- Test Twitter and LinkedIn connections
-- Update OAuth redirect URLs to your Railway domain
+### Optional Stripe Configuration
+```
+STRIPE_SECRET_KEY=sk_live_your-stripe-secret-key
+VITE_STRIPE_PUBLIC_KEY=pk_live_your-stripe-public-key
+STRIPE_WEBHOOK_SECRET=whsec_your-webhook-secret
+```
+
+## Step 4: Automatic Database Setup
+
+The application is configured to automatically:
+
+1. **Create all database tables** on first startup using Drizzle ORM
+2. **Initialize default platform data** (Twitter and LinkedIn)
+3. **Handle database migrations** automatically
+
+### How it works:
+- The app runs `drizzle-kit push` during startup
+- This creates all tables defined in `shared/schema.ts`
+- No manual SQL commands needed
+- Safe to run multiple times (idempotent)
+
+## Step 5: OAuth Setup
+
+### Twitter/X OAuth
+1. Go to https://developer.twitter.com/en/portal/dashboard
+2. Create a new app or use existing
+3. In App Settings → User authentication settings:
+   - Enable OAuth 2.0
+   - Type: Web App
+   - Callback URL: `https://your-railway-domain.railway.app/api/oauth/callback/twitter`
+   - Website URL: `https://your-railway-domain.railway.app`
+4. Copy Client ID and Client Secret to Railway environment variables
+
+### LinkedIn OAuth
+1. Go to https://www.linkedin.com/developers/apps
+2. Create a new app
+3. In Auth tab:
+   - Add redirect URL: `https://your-railway-domain.railway.app/api/oauth/callback/linkedin`
+   - Request r_liteprofile and w_member_social scopes
+4. Copy Client ID and Client Secret to Railway environment variables
+
+## Step 6: Deploy
+
+1. Push your code to GitHub
+2. Railway will automatically deploy
+3. Check the deployment logs to ensure:
+   - Database tables are created successfully
+   - Default platforms are initialized
+   - No errors in startup
+
+## Step 7: Health Check
+
+After deployment, verify:
+
+1. Visit your Railway URL
+2. Register a new account
+3. Try connecting Twitter and LinkedIn accounts
+4. Test creating and publishing a post
+
+## Production Considerations
+
+### Security
+- Use strong SESSION_SECRET (32+ random characters)
+- Enable HTTPS (automatic with Railway)
+- Use environment variables for all secrets
+
+### Email Service
+- Configure SMTP for production email sending
+- Test email verification and password reset flows
+
+### Monitoring
+- Check Railway logs for any errors
+- Monitor database performance
+- Set up uptime monitoring
+
+### Backup
+- Railway PostgreSQL includes automatic backups
+- Consider additional backup strategies for critical data
 
 ## Troubleshooting
 
-### Build Failures
-- Check Railway build logs for specific errors
-- Ensure all dependencies are in package.json
-- Verify Node.js version compatibility
-
 ### Database Issues
-- Confirm PostgreSQL service is running
-- Check DATABASE_URL environment variable
-- Review migration logs in Railway console
+- Check `DATABASE_URL` is set correctly
+- Ensure PostgreSQL service is running
+- Check deployment logs for migration errors
 
-### Environment Variable Issues
-- Verify all required variables are set
-- Check for typos in variable names
-- Ensure no trailing spaces in values
+### OAuth Issues
+- Verify callback URLs match exactly
+- Check client IDs and secrets are correct
+- Ensure OAuth apps are published/live
 
-### SSL/HTTPS Issues
-- Railway provides automatic HTTPS
-- Update OAuth redirect URLs to use HTTPS
-- Check CORS settings if needed
+### Email Issues
+- Verify SMTP credentials
+- Check spam folders for test emails
+- Enable "Less secure app access" for Gmail if needed
 
-## Production Checklist
+### Build Issues
+- Check Node.js version compatibility
+- Verify all dependencies are in package.json
+- Review build logs for specific errors
 
-- [ ] PostgreSQL database added and connected
-- [ ] All environment variables configured
-- [ ] Stripe keys added and tested
-- [ ] SMTP email configuration verified
-- [ ] OAuth redirect URLs updated
-- [ ] SSL certificates working
-- [ ] Domain configured (if using custom domain)
-- [ ] Monitoring and logging set up
+## Environment Variables Summary
 
-## Support
+Copy this to Railway's environment variables section:
 
-If you encounter issues:
-1. Check Railway logs for error messages
-2. Verify environment variables are correct
-3. Test locally with production environment variables
-4. Contact Railway support if infrastructure issues persist
+```
+NODE_ENV=production
+SESSION_SECRET=your-super-secure-session-secret-key-here
+TWITTER_CLIENT_ID=your-twitter-client-id
+TWITTER_CLIENT_SECRET=your-twitter-client-secret
+LINKEDIN_CLIENT_ID=your-linkedin-client-id
+LINKEDIN_CLIENT_SECRET=your-linkedin-client-secret
+SENDGRID_API_KEY=your-sendgrid-api-key
+SENDGRID_FROM_EMAIL=noreply@yourdomain.com
+STRIPE_SECRET_KEY=sk_live_your-stripe-secret-key
+VITE_STRIPE_PUBLIC_KEY=pk_live_your-stripe-public-key
+```
 
-## Security Notes
-
-- Never commit environment variables to your repository
-- Use Railway's secret management for sensitive data
-- Regularly rotate API keys and secrets
-- Enable two-factor authentication on all external services
+The `DATABASE_URL` will be automatically provided by Railway's PostgreSQL service.

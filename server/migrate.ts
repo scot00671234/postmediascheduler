@@ -1,7 +1,7 @@
-import { migrate } from 'drizzle-orm/neon-serverless/migrator';
+import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { db } from './db';
-import { Pool } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
+import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
