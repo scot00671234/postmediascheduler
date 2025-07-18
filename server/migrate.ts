@@ -1,7 +1,5 @@
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { db } from './db';
-import { Pool } from 'pg';
-import { drizzle } from 'drizzle-orm/node-postgres';
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
@@ -10,33 +8,29 @@ export async function runMigrations() {
   try {
     console.log('Running database migrations...');
     
-    // Check if migrations directory exists
-    const migrationsPath = path.join(process.cwd(), 'migrations');
-    if (!fs.existsSync(migrationsPath)) {
-      console.log('No migrations directory found. Creating schema using drizzle-kit push...');
-      
-      // Use drizzle-kit push to create schema
-      execSync('npx drizzle-kit push', { stdio: 'inherit' });
-      
-      console.log('Schema created successfully');
+    // Try drizzle-kit push first (most reliable for Railway)
+    try {
+      console.log('Creating schema using drizzle-kit push...');
+      execSync('npx drizzle-kit push --force', { stdio: 'inherit' });
+      console.log('Schema created successfully with drizzle-kit');
       return;
+    } catch (drizzleError) {
+      console.log('Drizzle-kit push failed, trying direct table creation...');
+      
+      // Import and use direct table creation as fallback
+      const { createTablesDirectly } = await import('./createTables');
+      const success = await createTablesDirectly();
+      
+      if (success) {
+        console.log('Schema created successfully via direct SQL');
+        return;
+      } else {
+        throw new Error('All migration methods failed');
+      }
     }
-    
-    // Run migrations if they exist
-    await migrate(db, { migrationsFolder: migrationsPath });
-    console.log('Database migrations completed successfully');
   } catch (error) {
     console.error('Migration error:', error);
-    
-    // Fallback to creating schema directly
-    console.log('Falling back to schema creation...');
-    try {
-      execSync('npx drizzle-kit push', { stdio: 'inherit' });
-      console.log('Schema created successfully via fallback');
-    } catch (fallbackError) {
-      console.error('Fallback schema creation failed:', fallbackError);
-      throw fallbackError;
-    }
+    throw error;
   }
 }
 

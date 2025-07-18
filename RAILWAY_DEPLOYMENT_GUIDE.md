@@ -72,10 +72,12 @@ The application is configured to automatically:
 3. **Handle database migrations** automatically
 
 ### How it works:
-- The app runs `drizzle-kit push` during startup
+- The app runs `drizzle-kit push --force` during startup
+- If that fails, it falls back to direct SQL table creation
 - This creates all tables defined in `shared/schema.ts`
 - No manual SQL commands needed
 - Safe to run multiple times (idempotent)
+- Handles Railway's PostgreSQL setup automatically
 
 ## Step 5: OAuth Setup
 
