@@ -3,12 +3,29 @@ import { db } from './db';
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
 export async function runMigrations() {
   try {
     console.log('Running database migrations...');
     
-    // Try drizzle-kit push first (most reliable for Railway)
+    // In production, skip drizzle-kit and use direct table creation
+    if (process.env.NODE_ENV === 'production') {
+      console.log('Production environment detected, using direct table creation...');
+      
+      const { createTablesDirectly } = await import('./createTables.js');
+      const success = await createTablesDirectly();
+      
+      if (success) {
+        console.log('Schema created successfully via direct SQL');
+        return;
+      } else {
+        throw new Error('Direct table creation failed');
+      }
+    }
+    
+    // In development, try drizzle-kit push first
     try {
       console.log('Creating schema using drizzle-kit push...');
       execSync('npx drizzle-kit push --force', { stdio: 'inherit' });
@@ -18,7 +35,7 @@ export async function runMigrations() {
       console.log('Drizzle-kit push failed, trying direct table creation...');
       
       // Import and use direct table creation as fallback
-      const { createTablesDirectly } = await import('./createTables');
+      const { createTablesDirectly } = await import('./createTables.js');
       const success = await createTablesDirectly();
       
       if (success) {
@@ -40,8 +57,8 @@ export async function initializeDefaultData() {
     console.log('Initializing default data...');
     
     // Check if platforms already exist
-    const { db } = await import('./db');
-    const { platforms } = await import('../shared/schema');
+    const { db } = await import('./db.js');
+    const { platforms } = await import('../shared/schema.js');
     
     const existingPlatforms = await db.select().from(platforms);
     

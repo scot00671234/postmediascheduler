@@ -72,12 +72,12 @@ The application is configured to automatically:
 3. **Handle database migrations** automatically
 
 ### How it works:
-- The app runs `drizzle-kit push --force` during startup
-- If that fails, it falls back to direct SQL table creation
-- This creates all tables defined in `shared/schema.ts`
-- No manual SQL commands needed
-- Safe to run multiple times (idempotent)
-- Handles Railway's PostgreSQL setup automatically
+- **Production Build**: Uses custom build script optimized for Railway
+- **Database Setup**: In production, uses direct SQL table creation (bypasses drizzle-kit)
+- **Table Creation**: Creates all tables defined in `shared/schema.ts` with proper constraints
+- **Default Data**: Automatically initializes Twitter and LinkedIn platform configurations
+- **No Manual SQL**: Everything happens automatically during deployment
+- **Idempotent**: Safe to run multiple times, won't duplicate data
 
 ## Step 5: OAuth Setup
 
