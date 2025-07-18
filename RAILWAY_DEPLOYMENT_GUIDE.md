@@ -72,12 +72,13 @@ The application is configured to automatically:
 3. **Handle database migrations** automatically
 
 ### How it works:
-- **Production Build**: Uses custom build script optimized for Railway
-- **Database Setup**: In production, uses direct SQL table creation (bypasses drizzle-kit)
-- **Table Creation**: Creates all tables defined in `shared/schema.ts` with proper constraints
+- **Production Build**: Uses custom build script with proper ESM bundling for Railway
+- **Database Setup**: Uses standalone schema-setup.ts in production (no external dependencies)
+- **Table Creation**: Creates all 8 tables + session table with proper constraints and indexes
 - **Default Data**: Automatically initializes Twitter and LinkedIn platform configurations
-- **No Manual SQL**: Everything happens automatically during deployment
+- **No Manual SQL**: Everything happens automatically during deployment startup
 - **Idempotent**: Safe to run multiple times, won't duplicate data
+- **Zero Downtime**: Tables created before app starts accepting traffic
 
 ## Step 5: OAuth Setup
 
