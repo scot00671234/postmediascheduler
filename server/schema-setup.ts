@@ -5,15 +5,15 @@ import { db } from './db.js';
 
 export async function createAllTables() {
   try {
-    console.log('Creating database schema...');
+    console.log('Creating database schema for Railway production...');
     
-    // Create sessions table for express-session
+    // Create sessions table for express-session (Railway-compatible)
     await db.execute(`
       CREATE TABLE IF NOT EXISTS "session" (
-        "sid" varchar NOT NULL COLLATE "default",
+        "sid" varchar NOT NULL,
         "sess" json NOT NULL,
         "expire" timestamp(6) NOT NULL
-      ) WITH (OIDS=FALSE);
+      );
     `);
     
     await db.execute(`

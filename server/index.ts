@@ -2,6 +2,12 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes.js";
 import { setupVite, serveStatic, log } from "./vite.js";
 import { runMigrations, initializeDefaultData } from "./migrate.js";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// Get __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Load environment variables
 import { config } from "dotenv";
@@ -72,7 +78,36 @@ app.use((req, res, next) => {
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
-    serveStatic(app);
+    // Production static file serving with fixed paths
+    const distPath = path.resolve(__dirname, "..", "dist", "public");
+    
+    // Check if built files exist, if not try alternative paths
+    if (!require('fs').existsSync(distPath)) {
+      console.log(`Build directory not found at ${distPath}, trying alternative paths...`);
+      
+      // Try the build output directory
+      const altPath = path.resolve(__dirname, "..", "dist");
+      if (require('fs').existsSync(altPath)) {
+        app.use(express.static(altPath));
+      } else {
+        console.error('No build directory found, serving minimal response');
+        app.use('*', (req, res) => {
+          res.json({ message: 'CrossPost Pro API is running', timestamp: new Date().toISOString() });
+        });
+      }
+    } else {
+      app.use(express.static(distPath));
+    }
+    
+    // Fallback for SPA routing in production
+    app.use("*", (req, res) => {
+      const indexPath = path.resolve(distPath, "index.html");
+      if (require('fs').existsSync(indexPath)) {
+        res.sendFile(indexPath);
+      } else {
+        res.json({ message: 'CrossPost Pro API is running', timestamp: new Date().toISOString() });
+      }
+    });
   }
 
   // Serve the app on the configured port (Railway uses PORT env var)

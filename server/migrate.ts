@@ -12,6 +12,7 @@ export async function runMigrations() {
       if (!success) {
         throw new Error('Failed to create database schema');
       }
+      console.log('Database tables created successfully in production');
       return;
     }
     
@@ -28,6 +29,7 @@ export async function runMigrations() {
       if (!success) {
         throw new Error('All migration methods failed');
       }
+      console.log('Database tables created successfully using standalone setup');
       return;
     }
   } catch (error) {

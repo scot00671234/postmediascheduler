@@ -94,21 +94,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.warn('Stripe not configured - subscription features will be disabled');
   }
 
-  // Create uploads directory if it doesn't exist
+  // Create uploads directory for Railway deployment
   const uploadsDir = process.env.NODE_ENV === 'production' 
-    ? '/app/uploads' 
+    ? '/tmp/uploads'  // Railway containers use /tmp for temporary files
     : path.join(process.cwd(), 'uploads');
   
   try {
     if (!fs.existsSync(uploadsDir)) {
       fs.mkdirSync(uploadsDir, { recursive: true });
+      console.log(`Created uploads directory at: ${uploadsDir}`);
     }
   } catch (error) {
-    console.warn('Could not create uploads directory:', error);
-    // Use a fallback directory in production
+    console.error('Could not create uploads directory:', error);
+    // Fallback to /tmp/uploads for Railway
     const fallbackDir = '/tmp/uploads';
-    if (!fs.existsSync(fallbackDir)) {
-      fs.mkdirSync(fallbackDir, { recursive: true });
+    try {
+      if (!fs.existsSync(fallbackDir)) {
+        fs.mkdirSync(fallbackDir, { recursive: true });
+        console.log(`Created fallback uploads directory at: ${fallbackDir}`);
+      }
+    } catch (fallbackError) {
+      console.error('Could not create fallback uploads directory:', fallbackError);
     }
   }
 

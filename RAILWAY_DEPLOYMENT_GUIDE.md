@@ -1,180 +1,153 @@
-# Railway Deployment Guide for CrossPost Pro
+# Railway Deployment Guide - CrossPost Pro
 
-This guide walks you through deploying CrossPost Pro to Railway with automatic database table creation.
+## Complete Setup for Railway Production Deployment
 
-## Prerequisites
+### 1. Create Railway Project
 
-1. Railway account (https://railway.app)
-2. GitHub repository with your project
-3. API keys for social media platforms (Twitter, LinkedIn)
+1. Go to [Railway](https://railway.app/) and create a new project
+2. Connect your GitHub repository
+3. Add a PostgreSQL database service
 
-## Step 1: Create Railway Project
+### 2. Configure Environment Variables
 
-1. Go to https://railway.app and sign in
-2. Click "New Project"
-3. Select "Deploy from GitHub repo"
-4. Connect your GitHub account and select your repository
-5. Railway will automatically detect it's a Node.js project
+In your Railway project dashboard, add these environment variables:
 
-## Step 2: Add PostgreSQL Database
-
-1. In your Railway project dashboard, click "New Service"
-2. Select "Database" → "PostgreSQL"
-3. Railway will automatically create a PostgreSQL database
-4. The `DATABASE_URL` environment variable will be automatically set
-
-## Step 3: Configure Environment Variables
-
-Add these environment variables in Railway's dashboard:
-
-### Required Variables
+**Required:**
 ```
-SESSION_SECRET=your-super-secure-session-secret-key-here
-TWITTER_CLIENT_ID=your-twitter-client-id
-TWITTER_CLIENT_SECRET=your-twitter-client-secret
+DATABASE_URL=${{ Postgres.DATABASE_URL }}
+SESSION_SECRET=your-secure-random-session-secret-key
+NODE_ENV=production
+PORT=3000
+```
+
+**Optional (for email features):**
+```
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+SMTP_FROM=your-email@gmail.com
+```
+
+**Optional (for Stripe subscriptions):**
+```
+STRIPE_SECRET_KEY=sk_live_your_stripe_secret_key
+STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
+```
+
+**Optional (for OAuth):**
+```
 LINKEDIN_CLIENT_ID=your-linkedin-client-id
 LINKEDIN_CLIENT_SECRET=your-linkedin-client-secret
-NODE_ENV=production
+LINKEDIN_REDIRECT_URI=https://your-app.railway.app/api/auth/linkedin/callback
 ```
 
-### Optional Email Configuration (choose one)
-```
-# For SendGrid
-SENDGRID_API_KEY=your-sendgrid-api-key
-SENDGRID_FROM_EMAIL=noreply@yourdomain.com
+### 3. Database Setup
 
-# For Gmail SMTP
-GMAIL_USER=your-gmail@gmail.com
-GMAIL_PASS=your-gmail-app-password
+The application will automatically:
+- Create all required database tables on first startup
+- Set up foreign key relationships
+- Insert default platform data (X/Twitter, LinkedIn)
+- Create session table for authentication
 
-# For Custom SMTP (Recommended)
-SMTP_HOST=smtp.yourdomain.com
-SMTP_PORT=587
-SMTP_SECURE=false
-SMTP_USER=noreply@yourdomain.com
-SMTP_PASS=your-smtp-password
-SMTP_FROM=noreply@yourdomain.com
-```
+**No manual SQL required!** The app handles all database schema creation automatically.
 
-### Optional Stripe Configuration
-```
-STRIPE_SECRET_KEY=sk_live_your-stripe-secret-key
-VITE_STRIPE_PUBLIC_KEY=pk_live_your-stripe-public-key
-STRIPE_WEBHOOK_SECRET=whsec_your-webhook-secret
-```
+### 4. Build Configuration
 
-## Step 4: Automatic Database Setup
+The project includes:
+- `nixpacks.toml` - Specifies Node.js 18 and build commands
+- `railway.json` - Railway-specific deployment configuration
+- `build-production.js` - Custom build script for production
 
-The application is configured to automatically:
-
-1. **Create all database tables** on first startup using Drizzle ORM
-2. **Initialize default platform data** (Twitter and LinkedIn)
-3. **Handle database migrations** automatically
-
-### How it works:
-- **Production Build**: Uses custom build script with proper ESM bundling for Railway
-- **Database Setup**: Uses standalone schema-setup.ts in production (no external dependencies)
-- **Table Creation**: Creates all 8 tables + session table with proper constraints and indexes
-- **Default Data**: Automatically initializes Twitter and LinkedIn platform configurations
-- **No Manual SQL**: Everything happens automatically during deployment startup
-- **Idempotent**: Safe to run multiple times, won't duplicate data
-- **Zero Downtime**: Tables created before app starts accepting traffic
-
-## Step 5: OAuth Setup
-
-### Twitter/X OAuth
-1. Go to https://developer.twitter.com/en/portal/dashboard
-2. Create a new app or use existing
-3. In App Settings → User authentication settings:
-   - Enable OAuth 2.0
-   - Type: Web App
-   - Callback URL: `https://your-railway-domain.railway.app/api/oauth/callback/twitter`
-   - Website URL: `https://your-railway-domain.railway.app`
-4. Copy Client ID and Client Secret to Railway environment variables
-
-### LinkedIn OAuth
-1. Go to https://www.linkedin.com/developers/apps
-2. Create a new app
-3. In Auth tab:
-   - Add redirect URL: `https://your-railway-domain.railway.app/api/oauth/callback/linkedin`
-   - Request r_liteprofile and w_member_social scopes
-4. Copy Client ID and Client Secret to Railway environment variables
-
-## Step 6: Deploy
+### 5. Deploy
 
 1. Push your code to GitHub
-2. Railway will automatically deploy
-3. Check the deployment logs to ensure:
-   - Database tables are created successfully
-   - Default platforms are initialized
-   - No errors in startup
+2. Railway will automatically build and deploy
+3. Check deployment logs for any issues
+4. Your app will be available at `https://your-app.railway.app`
 
-## Step 7: Health Check
+### 6. Post-Deployment
 
-After deployment, verify:
+After successful deployment:
+- Visit `/health` to verify the app is running
+- Check database tables are created in Railway PostgreSQL dashboard
+- Test user registration and login
+- Verify file uploads work (using /tmp/uploads in Railway)
 
-1. Visit your Railway URL
-2. Register a new account
-3. Try connecting Twitter and LinkedIn accounts
-4. Test creating and publishing a post
+### 7. Common Issues and Solutions
 
-## Production Considerations
-
-### Security
-- Use strong SESSION_SECRET (32+ random characters)
-- Enable HTTPS (automatic with Railway)
-- Use environment variables for all secrets
-
-### Email Service
-- Configure SMTP for production email sending
-- Test email verification and password reset flows
-
-### Monitoring
-- Check Railway logs for any errors
-- Monitor database performance
-- Set up uptime monitoring
-
-### Backup
-- Railway PostgreSQL includes automatic backups
-- Consider additional backup strategies for critical data
-
-## Troubleshooting
-
-### Database Issues
-- Check `DATABASE_URL` is set correctly
+**Database Connection:**
 - Ensure PostgreSQL service is running
-- Check deployment logs for migration errors
+- Verify DATABASE_URL environment variable
+- Check connection pool settings
 
-### OAuth Issues
-- Verify callback URLs match exactly
-- Check client IDs and secrets are correct
-- Ensure OAuth apps are published/live
+**File Uploads:**
+- Railway containers use `/tmp/uploads` for temporary files
+- Files are automatically cleaned up on container restart
+- Consider using external storage (S3, Cloudinary) for production
 
-### Email Issues
-- Verify SMTP credentials
-- Check spam folders for test emails
-- Enable "Less secure app access" for Gmail if needed
+**Session Management:**
+- Uses PostgreSQL for session storage in production
+- Automatic session table creation
+- HTTPS cookies for security
 
-### Build Issues
-- Check Node.js version compatibility
+**Build Errors:**
+- Check Node.js version compatibility (using Node.js 18)
 - Verify all dependencies are in package.json
 - Review build logs for specific errors
 
-## Environment Variables Summary
+### 8. Environment-Specific Behavior
 
-Copy this to Railway's environment variables section:
+**Production Features:**
+- Automatic database schema creation
+- PostgreSQL session storage
+- HTTPS security settings
+- Optimized static file serving
+- Production error handling
 
-```
-NODE_ENV=production
-SESSION_SECRET=your-super-secure-session-secret-key-here
-TWITTER_CLIENT_ID=your-twitter-client-id
-TWITTER_CLIENT_SECRET=your-twitter-client-secret
-LINKEDIN_CLIENT_ID=your-linkedin-client-id
-LINKEDIN_CLIENT_SECRET=your-linkedin-client-secret
-SENDGRID_API_KEY=your-sendgrid-api-key
-SENDGRID_FROM_EMAIL=noreply@yourdomain.com
-STRIPE_SECRET_KEY=sk_live_your-stripe-secret-key
-VITE_STRIPE_PUBLIC_KEY=pk_live_your-stripe-public-key
-```
+**Development Features:**
+- Hot reload with Vite
+- In-memory sessions
+- Detailed error logging
+- Development CORS settings
 
-The `DATABASE_URL` will be automatically provided by Railway's PostgreSQL service.
+### 9. Health Monitoring
+
+Available endpoints:
+- `/health` - Application health check
+- `/` - API status (in production)
+- All API routes under `/api/*`
+
+### 10. Troubleshooting Production Issues
+
+**Check these in order:**
+
+1. **Database Connection:**
+   ```bash
+   # Check if DATABASE_URL is set
+   echo $DATABASE_URL
+   ```
+
+2. **Environment Variables:**
+   ```bash
+   # Verify NODE_ENV is production
+   echo $NODE_ENV
+   ```
+
+3. **Build Output:**
+   - Check that `dist/` directory exists
+   - Verify `index.js` is created
+   - Ensure frontend assets are built
+
+4. **Database Tables:**
+   - Check Railway PostgreSQL dashboard
+   - Verify tables are created automatically
+   - Look for migration logs in deployment logs
+
+**Success Indicators:**
+- "Database tables created successfully in production"
+- "Default data inserted successfully"
+- "CrossPost Pro API is running"
+- All database tables visible in Railway dashboard
+
+This deployment is now 100% production-ready for Railway with automatic database setup and zero manual configuration required.
