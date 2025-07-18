@@ -1,17 +1,17 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
-import { oauthService } from "./services/oauth";
-import { queueService } from "./services/queue";
-import { schedulerService } from "./services/scheduler";
-import { platformService } from "./services/platforms";
-import { emailService } from "./emailService";
-import { authService, requireAuth as authMiddleware, registerSchema, loginSchema, emailVerificationSchema, forgotPasswordSchema, resetPasswordSchema } from "./auth";
-import { requireProSubscription, checkFeatureLimits, PRO_LIMITS } from "./middleware/proFeatures";
+import { storage } from "./storage.js";
+import { oauthService } from "./services/oauth.js";
+import { queueService } from "./services/queue.js";
+import { schedulerService } from "./services/scheduler.js";
+import { platformService } from "./services/platforms.js";
+import { emailService } from "./emailService.js";
+import { authService, requireAuth as authMiddleware, registerSchema, loginSchema, emailVerificationSchema, forgotPasswordSchema, resetPasswordSchema } from "./auth.js";
+import { requireProSubscription, checkFeatureLimits, PRO_LIMITS } from "./middleware/proFeatures.js";
 import { z } from "zod";
 import { insertPostSchema, insertUserSchema, insertMediaFileSchema, users } from "@shared/schema";
 import express from "express";
-import { db } from "./db";
+import { db } from "./db.js";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import session from "express-session";
@@ -24,7 +24,7 @@ import { v4 as uuidv4 } from "uuid";
 import sharp from "sharp";
 import mime from "mime-types";
 import Stripe from "stripe";
-import { pool } from "./db";
+import { pool } from "./db.js";
 
 
 // Middleware for authentication (legacy support)

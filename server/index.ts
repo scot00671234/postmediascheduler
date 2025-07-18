@@ -1,7 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
-import { runMigrations, initializeDefaultData } from "./migrate";
+import { registerRoutes } from "./routes.js";
+import { setupVite, serveStatic, log } from "./vite.js";
+import { runMigrations, initializeDefaultData } from "./migrate.js";
 
 // Load environment variables
 import { config } from "dotenv";
